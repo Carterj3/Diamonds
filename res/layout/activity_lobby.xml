@@ -1,0 +1,76 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+
+ <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/diamonds" 
+        android:contentDescription="@string/logo_description"/>
+
+ <TextView
+     android:id="@+id/lobby_player1_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentLeft="true"
+     android:layout_below="@+id/imageView1"
+     android:text="Player 1" />
+
+ <TextView
+     android:id="@+id/lobby_player2_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentLeft="true"
+     android:layout_below="@+id/lobby_player1_textview"
+     android:text="Player 2" />
+
+ <TextView
+     android:id="@+id/lobby_player3_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentLeft="true"
+     android:layout_below="@+id/lobby_player2_textview"
+     android:text="Player 3" />
+
+ <TextView
+     android:id="@+id/lobby_player4_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentLeft="true"
+     android:layout_below="@+id/lobby_player3_textview"
+     android:text="Player 4" />
+
+ <EditText
+     android:id="@+id/lobby_chat_input_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentBottom="true"
+     android:layout_alignParentLeft="true"
+     android:ems="10" >
+
+     <requestFocus />
+ </EditText>
+
+ <Button
+     android:id="@+id/lobby_chat_button"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentBottom="true"
+     android:layout_toRightOf="@+id/lobby_chat_input_textview"
+     android:text="@string/lobby_chat_button_text" />
+
+ <TextView
+     android:id="@+id/lobby_chat_output_textview"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignRight="@+id/lobby_chat_button"
+     android:layout_below="@+id/lobby_player1_textview"
+     android:text="" />
+
+</RelativeLayout>
