@@ -3,6 +3,7 @@ package com.diamonds;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import android.util.Log;
@@ -22,24 +23,39 @@ public class NonHostSocket extends Thread {
 	@Override
 	public void run() {
 		try {
-			sock = new Socket(ip, CONSTANTS.SOCKET_Port);
+			sock = new Socket();
+			sock.connect(new InetSocketAddress(ip, CONSTANTS.SOCKET_Port));
+			Log.d(MainActivity.tag, "NonHostSocket connected");
 			send(CONSTANTS.SOCKET_GetUsernames);
+			Log.d(MainActivity.tag, "NonHostSocket asked names");
 		} catch (Exception e) {
 			Log.d(MainActivity.tag,
 					"NonHostSocket Creation Error m: " + e.getMessage());
 		}
 		try {
+			int tries = 10;
 			while (true) {
-				int availBytes = sock.getInputStream().available();
-				if (availBytes > 0) {
-					final byte[] buffer = new byte[availBytes];
-					sock.getInputStream().read(buffer);
 
-					comListener.onRecv(new String(buffer), 0);
+				try {
+					int availBytes = sock.getInputStream().available();
+					if (availBytes > 0) {
+						final byte[] buffer = new byte[availBytes];
+						sock.getInputStream().read(buffer);
 
-				} else {
-					Thread.sleep(10);
+						comListener.onRecv(new String(buffer), 0);
+
+					} else {
+						Thread.sleep(10);
+					}
+				} catch (Exception e) {
+					if (tries == 0) {
+						throw e;
+					}
+					tries--;
+					Log.d(MainActivity.tag,
+							"NonHostSocket err e:" + e.getMessage());
 				}
+
 			}
 		} catch (Exception e) {
 			Log.d(MainActivity.tag, "A nonHostSocket Died m:" + e.getMessage());
@@ -52,8 +68,8 @@ public class NonHostSocket extends Thread {
 			outputStream = sock.getOutputStream();
 			PrintStream printStream = new PrintStream(outputStream);
 			printStream.print(msg);
-			printStream.close();
 		} catch (IOException e) {
+			Log.d(MainActivity.tag, "NonHostSocket send e:" + e.getMessage());
 		}
 
 	}

@@ -1,6 +1,5 @@
 package com.diamonds;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -10,7 +9,7 @@ public class SocketServerThread extends Thread {
 
 	private ServerSocket serverSocket;
 	private OnCommunication comListener;
-	private int id = 0;
+	private int id = 1;
 
 	public SocketServerThread(OnCommunication comListener) {
 		this.comListener = comListener;

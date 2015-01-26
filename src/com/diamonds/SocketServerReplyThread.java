@@ -17,6 +17,8 @@ public class SocketServerReplyThread extends Thread {
 		sock = socket;
 		this.comListener = comListener;
 		this.id = id;
+		
+		comListener.onConnection(this, id);
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class SocketServerReplyThread extends Thread {
 					sock.getInputStream().read(buffer);
 
 					comListener.onRecv(new String(buffer), id);
-					
+
 				} else {
 					Thread.sleep(10);
 				}
@@ -47,8 +49,8 @@ public class SocketServerReplyThread extends Thread {
 			outputStream = sock.getOutputStream();
 			PrintStream printStream = new PrintStream(outputStream);
 			printStream.print(msg);
-			printStream.close();
 		} catch (IOException e) {
+			Log.d(MainActivity.tag, "PrintStream error e: " + e.getMessage());
 		}
 
 	}

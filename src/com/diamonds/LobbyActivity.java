@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -40,6 +41,8 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		if (mIsHost) {
 			Thread socketServerThread = new Thread(new SocketServerThread(this));
 			socketServerThread.start();
+			((TextView) findViewById(R.id.lobby_player1_textview))
+					.setText(mUsername);
 		} else {
 			sock = new NonHostSocket(this, mIp);
 			sock.start();
@@ -53,6 +56,8 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onRecv(final String msg, final int id) {
+		Log.d(MainActivity.tag, "Lobby onRecv : " + msg);
+
 		// Request for players
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsernames)) {
 			// If somebody asks for all of the usernames, send them
@@ -65,21 +70,38 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			String p4 = ((TextView) findViewById(R.id.lobby_player4_textview))
 					.getText().toString();
 
+			Log.d(MainActivity.tag, CONSTANTS.SOCKET_SendUsernames + p1 + ";"
+					+ p2 + ";" + p3 + ";" + p4);
+
 			socketMap.get(id).send(
-					CONSTANTS.SOCKET_SendUsernames + p1 + "|" + p2 + "|" + p3
-							+ "|" + p4);
+					CONSTANTS.SOCKET_SendUsernames + p1 + ";" + p2 + ";" + p3
+							+ ";" + p4);
+			Log.d(MainActivity.tag,"GetUsernames id["+id+"] socketmap["+socketMap.get(id).toString()+"]");
+
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsernames)) {
-			String[] players = msg.split(":")[1].split("|");
+			String[] players = msg.split(":")[1].split(";");
 
-			String p1 = players[0];
-			String p2 = players[1];
-			String p3 = players[2];
-			String p4 = players[3];
+			final String p1 = players[0];
+			final String p2 = players[1];
+			final String p3 = players[2];
+			final String p4 = players[3];
 
-			((TextView) findViewById(R.id.lobby_player1_textview)).setText(p1);
-			((TextView) findViewById(R.id.lobby_player2_textview)).setText(p2);
-			((TextView) findViewById(R.id.lobby_player3_textview)).setText(p3);
-			((TextView) findViewById(R.id.lobby_player4_textview)).setText(p4);
+		
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					((TextView) findViewById(R.id.lobby_player1_textview)).setText(p1);
+					((TextView) findViewById(R.id.lobby_player2_textview)).setText(p2);
+					((TextView) findViewById(R.id.lobby_player3_textview)).setText(p3);
+					((TextView) findViewById(R.id.lobby_player4_textview)).setText(p4);
+				}
+			});
+			
+			Log.d(MainActivity.tag, "recv_ "+msg);
+			
+			
+
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsername)) {
 			// If somebody asks for our username, send it back
 			socketMap.get(id).send(CONSTANTS.SOCKET_SendUsername + mUsername);
@@ -136,6 +158,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			return;
 		}
 
+		Log.d(MainActivity.tag, "Lobby sendToPlayers l:" + socketMap.size());
 		for (SocketServerReplyThread sock : socketMap.values()) {
 			sock.send(msg);
 		}
@@ -143,7 +166,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	public void sendToHost(String msg) {
 		if (mIsHost) {
-			sendToPlayers(msg);
+			// sendToPlayers(msg);
 			onRecv(msg, 0);
 		} else {
 			sock.send(msg);
@@ -162,7 +185,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		String newChat = chatInput.getText().toString();
 		chatInput.setText("");
 
-		sendToHost(CONSTANTS.SOCKET_SendChat + ":" + newChat);
+		sendToHost(CONSTANTS.SOCKET_SendChat + newChat);
 	}
 
 }

@@ -20,7 +20,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/create_game_button"
-        android:ems="10" >
+        android:ems="10"
+        android:text="137.112.227.46" >
+
     </EditText>
 
     <Button

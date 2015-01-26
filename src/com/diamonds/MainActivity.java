@@ -1,12 +1,9 @@
 package com.diamonds;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
 
@@ -25,12 +22,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		messageTextView = (TextView) findViewById(R.id.recieved_messages_textview);
 
 		messageTextView.setText("Test");
 
-		
 	}
 
 	@Override
