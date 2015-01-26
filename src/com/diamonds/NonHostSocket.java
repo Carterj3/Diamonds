@@ -16,22 +16,31 @@ public class NonHostSocket extends Thread {
 	public NonHostSocket(OnCommunication comListener, String mIp) {
 		this.comListener = comListener;
 		this.ip = mIp;
+
 	}
 
 	@Override
 	public void run() {
 		try {
-			int availBytes = sock.getInputStream().available();
-			if (availBytes > 0) {
-				final byte[] buffer = new byte[availBytes];
-				sock.getInputStream().read(buffer);
+			sock = new Socket(ip, CONSTANTS.SOCKET_Port);
+			send(CONSTANTS.SOCKET_GetUsernames);
+		} catch (Exception e) {
+			Log.d(MainActivity.tag,
+					"NonHostSocket Creation Error m: " + e.getMessage());
+		}
+		try {
+			while (true) {
+				int availBytes = sock.getInputStream().available();
+				if (availBytes > 0) {
+					final byte[] buffer = new byte[availBytes];
+					sock.getInputStream().read(buffer);
 
-				comListener.onRecv(new String(buffer), 0);
+					comListener.onRecv(new String(buffer), 0);
 
-			} else {
-				Thread.sleep(10);
+				} else {
+					Thread.sleep(10);
+				}
 			}
-
 		} catch (Exception e) {
 			Log.d(MainActivity.tag, "A nonHostSocket Died m:" + e.getMessage());
 		}

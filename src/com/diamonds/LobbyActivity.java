@@ -48,7 +48,6 @@ public class LobbyActivity extends Activity implements OnCommunication,
 				Thread.sleep(1000);
 			} catch (Exception e) {
 			}
-			sock.send(CONSTANTS.SOCKET_GetUsernames);
 		}
 	}
 
@@ -145,6 +144,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	public void sendToHost(String msg) {
 		if (mIsHost) {
 			sendToPlayers(msg);
+			onRecv(msg, 0);
 		} else {
 			sock.send(msg);
 		}
