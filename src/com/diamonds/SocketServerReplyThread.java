@@ -32,7 +32,7 @@ public class SocketServerReplyThread extends Thread {
 					comListener.onRecv(new String(buffer), id);
 					
 				} else {
-					Thread.sleep(1000);
+					Thread.sleep(10);
 				}
 			}
 		} catch (Exception e) {

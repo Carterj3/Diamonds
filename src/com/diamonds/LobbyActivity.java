@@ -43,7 +43,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		} else {
 			sock = new NonHostSocket(this, mIp);
 			sock.start();
-			
+
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {
@@ -53,7 +53,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	}
 
 	@Override
-	public void onRecv(String msg, int id) {
+	public void onRecv(final String msg, final int id) {
 		// Request for players
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsernames)) {
 			// If somebody asks for all of the usernames, send them
@@ -86,32 +86,48 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			socketMap.get(id).send(CONSTANTS.SOCKET_SendUsername + mUsername);
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsername)) {
 			// If somebody send us their username, we should use it
-			String username = msg.split(":")[1];
-			switch (id + 1) {
-			case 1:
-				((TextView) findViewById(R.id.lobby_player1_textview))
-						.setText(username);
-				break;
-			case 2:
-				((TextView) findViewById(R.id.lobby_player2_textview))
-						.setText(username);
-				break;
-			case 3:
-				((TextView) findViewById(R.id.lobby_player3_textview))
-						.setText(username);
-				break;
-			case 4:
-				((TextView) findViewById(R.id.lobby_player4_textview))
-						.setText(username);
-				break;
-			}
+			final String username = msg.split(":")[1];
+			this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					switch (id + 1) {
+					case 1:
+						((TextView) findViewById(R.id.lobby_player1_textview))
+								.setText(username);
+						break;
+					case 2:
+						((TextView) findViewById(R.id.lobby_player2_textview))
+								.setText(username);
+						break;
+					case 3:
+						((TextView) findViewById(R.id.lobby_player3_textview))
+								.setText(username);
+						break;
+					case 4:
+						((TextView) findViewById(R.id.lobby_player4_textview))
+								.setText(username);
+						break;
+					}
+				}
+			});
+
 			// let other players know that somebody joined
 			sendToPlayers(msg);
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
 			sendToPlayers(msg);
-			chatOutput.setText(chatOutput.getText().toString() + "\n" + msg);
+			this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					chatOutput.setText(chatOutput.getText().toString() + "\n"
+							+ msg.split(":")[1]);
+
+				}
+			});
+
 		}
 
 	}

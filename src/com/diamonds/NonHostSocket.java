@@ -29,7 +29,7 @@ public class NonHostSocket extends Thread {
 				comListener.onRecv(new String(buffer), 0);
 
 			} else {
-				Thread.sleep(1000);
+				Thread.sleep(10);
 			}
 
 		} catch (Exception e) {
