@@ -6,6 +6,7 @@ public class CONSTANTS {
 	public static final String SOCKET_SendUsername = "SendUsername:";
 	public static final String SOCKET_SendUsernames = "SendUsernames:";
 	public static final String SOCKET_SendChat = "SendChat:";
+	public static final String SOCKET_StartGame = "StartGame";
 
 	public static final int SOCKET_Port = 8080;
 	

@@ -19,14 +19,14 @@ public class Player_tests {
 
 	@Test
 	public void test_PlayerEqualsSelf() {
-		Player player = new Player("Jeff");
+		Player player = new Player("Jeff",0);
 		assertTrue(player.equals(player));
 	}
 	
 	@Test
 	public void test_PlayerEqualsSame() {
-		Player player_A = new Player("Jeff");
-		Player player_B = new Player("Jeff");
+		Player player_A = new Player("Jeff",0);
+		Player player_B = new Player("Jeff",0);
 		
 		assertTrue(player_A.equals(player_B));
 		assertTrue(player_B.equals(player_A));
@@ -34,8 +34,8 @@ public class Player_tests {
 	
 	@Test
 	public void test_PlayerJeffNotEqualDooley() {
-		Player player_A = new Player("Jeff");
-		Player player_B = new Player("Dooley");
+		Player player_A = new Player("Jeff",0);
+		Player player_B = new Player("Dooley",1);
 		
 		assertFalse(player_A.equals(player_B));
 		assertFalse(player_B.equals(player_A));

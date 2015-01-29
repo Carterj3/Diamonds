@@ -23,10 +23,10 @@ public class GameEngine_tests {
 
 	private GameEngine engine;
 
-	private Player player1 = new Player("1");
-	private Player player2 = new Player("2");
-	private Player player3 = new Player("3");
-	private Player player4 = new Player("4");
+	private Player player1 = new Player("1",0);
+	private Player player2 = new Player("2",1);
+	private Player player3 = new Player("3",2);
+	private Player player4 = new Player("4",3);
 
 	@Before
 	public void setUp() throws Exception {

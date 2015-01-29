@@ -12,5 +12,10 @@
     <string name="join_game_text">Join Game</string>
     <string name="title_activity_lobby">LobbyActivity</string>
     <string name="lobby_chat_button_text">Chat!</string>
+    <string name="title_activity_game">GameActivity</string>
+    <string name="game_points_label">Points</string>
+    <string name="game_score_label">Score</string>
+    <string name="game_chat_hint">Type to chat!</string>
+    <string name="game_chat_button_label">Chat!</string>
 
 </resources>

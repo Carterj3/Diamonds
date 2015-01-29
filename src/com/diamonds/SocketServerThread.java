@@ -2,17 +2,24 @@ package com.diamonds;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.TreeMap;
+
+import org.rosehulman.edu.carterj3.Player;
 
 import android.util.Log;
 
 public class SocketServerThread extends Thread {
 
+	public static SocketServerThread globalSocket = null;
+	public static TreeMap<Integer, Player> globalMap = new TreeMap<Integer,Player>();
+	
 	private ServerSocket serverSocket;
-	private OnCommunication comListener;
+	OnCommunication comListener;
 	private int id = 1;
 
 	public SocketServerThread(OnCommunication comListener) {
 		this.comListener = comListener;
+		this.globalSocket = this;
 	}
 
 	@Override
