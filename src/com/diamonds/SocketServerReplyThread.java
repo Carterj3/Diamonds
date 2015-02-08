@@ -2,9 +2,9 @@ package com.diamonds;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;
@@ -22,22 +22,23 @@ public class SocketServerReplyThread extends Thread {
 		sock = socket;
 		this.comListener = comListener;
 		this.id = id;
-		
+
 		try {
 			player = comListener.onConnection(this, id);
 		} catch (PlayerNotFoundException e) {
 			try {
 				socket.close();
 			} catch (IOException e1) {
-				Log.d(MainActivity.tag,"SocketReply died : no empty slots for new player");
+				Log.d(MainActivity.tag,
+						"SocketReply died : no empty slots for new player");
 			}
 		}
 	}
 
 	@Override
 	public void run() {
-		
-		if(player == null){
+
+		if (player == null) {
 			return;
 		}
 
@@ -46,21 +47,35 @@ public class SocketServerReplyThread extends Thread {
 				byte[] lengthBuffer = new byte[4];
 				sock.getInputStream().read(lengthBuffer);
 				int length = convertFromBytes(lengthBuffer);
-				
-				Log.d(MainActivity.tag,"SocketReply reading:"+length);
-				
+
+				Log.d(MainActivity.tag,
+						"SocketReply ["
+								+ id
+								+ "] reading:"
+								+ length
+								+ "|"
+								+ new String(lengthBuffer, Charset
+										.forName("UTF-8")));
+				if (length == 0) {
+
+					closeSocket();
+				}
+
 				if (length > 0) {
-					final byte[] buffer = new byte[length];
+					byte[] buffer = new byte[length];
 					sock.getInputStream().read(buffer);
 
-					comListener.onRecv(new String(buffer), player.position);
+					comListener.onRecv(
+							new String(buffer, Charset.forName("UTF-8")),
+							player.position);
 
 				} else {
 					Thread.sleep(10);
 				}
-				
-				if(!sock.isConnected()){
-					Log.d(MainActivity.tag,"SocketReply notConnected : "+player.name);
+
+				if (!sock.isConnected()) {
+					Log.d(MainActivity.tag, "SocketReply notConnected : "
+							+ player.name);
 					closeSocket();
 				}
 			}
@@ -75,17 +90,21 @@ public class SocketServerReplyThread extends Thread {
 		OutputStream outputStream;
 		try {
 			outputStream = sock.getOutputStream();
+
+			byte[] message = msg.getBytes(Charset.forName("UTF-8"));
+
+			outputStream.write(convertToBytes(message.length));
+			outputStream.write(message);
 			
-			outputStream.write(convertToBytes(msg.length()));
-			
-			(new PrintStream(outputStream)).print(msg);
+			Log.d(MainActivity.tag,"SocketReply ["+id+"] sent a message of length ["+message.length+"]");
+
 		} catch (IOException e) {
 			Log.d(MainActivity.tag, "PrintStream error e: " + e.getMessage());
 		}
 
 	}
-	
-	public void closeSocket(){
+
+	public void closeSocket() {
 		comListener.onDisconnect(player);
 		try {
 			sock.close();
@@ -93,14 +112,14 @@ public class SocketServerReplyThread extends Thread {
 			e1.printStackTrace();
 		}
 	}
-	
-	public byte[] convertToBytes(int i){
+
+	public byte[] convertToBytes(int i) {
 		ByteBuffer b = ByteBuffer.allocate(4);
 		b.putInt(i);
 		return b.array();
 	}
-	
-	public int convertFromBytes(byte[] b){
+
+	public int convertFromBytes(byte[] b) {
 		return ByteBuffer.wrap(b).getInt();
 	}
 

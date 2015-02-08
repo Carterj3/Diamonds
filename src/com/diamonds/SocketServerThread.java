@@ -19,7 +19,7 @@ public class SocketServerThread extends Thread {
 
 	public SocketServerThread(OnCommunication comListener) {
 		this.comListener = comListener;
-		this.globalSocket = this;
+		SocketServerThread.globalSocket = this;
 	}
 
 	@Override

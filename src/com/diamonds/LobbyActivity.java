@@ -1,6 +1,5 @@
 package com.diamonds;
 
-import java.util.ArrayList;
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -31,7 +30,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	public static final String KEY_ISHOST = "ISHOST";
 	public static final String KEY_IP = "IP";
 	public static final String KEY_USERNAME = "USERNAME";
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,6 +56,13 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			availableSlots.add(new Player("Player 4",3));
 			availableSlots.add(new Player("Player 3",2));
 			availableSlots.add(new Player("Player 2",1));
+			
+			Bot.bot1 = new Bot("Bot 1",1);
+			Bot.bot1.StartBot();
+			
+			Bot.bot2 = new Bot("Bot 2",2);
+			Bot.bot2.StartBot();
+			
 		} else {
 			sock = new NonHostSocket(this, mIp,mUsername);
 			sock.start();
@@ -70,13 +76,11 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onRecv(final String msg, final int position) {
-		Log.d(MainActivity.tag, "Lobby onRecv : " + msg);
+		Log.d(MainActivity.tag, "Lobby ["+position+"] onRecv : " + msg);
 
 		// Request for players
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsernames)) {
 			// If somebody asks for all of the usernames, send them
-			
-			
 			
 			String p1 = mUsername;
 			String p2 = getPlayer(1);
@@ -117,6 +121,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsername)) {
 			// If somebody asks for our username, send it back
+			Log.d(MainActivity.tag,"!!! ["+mIsHost+"] ["+mUsername+"]");
 			socketMap.get(position).socket.send(CONSTANTS.SOCKET_SendUsername + mUsername);
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsername)) {
 			// If somebody send us their username, we should use it
@@ -162,7 +167,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 				}
 			});
 			
-			if(msg.split(":")[1].equals("Start")){
+			if(msg.split(":")[1].equals("Start") && mIsHost){
 				Log.d(MainActivity.tag,"LobbyActivity going to start game : "+position);
 				onRecv(CONSTANTS.SOCKET_StartGame, 0);
 			}
@@ -173,7 +178,6 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			
 			if(mIsHost){
 				SocketServerThread.globalMap = this.socketMap;
-				sendToPlayers(msg);
 			}
 			
 			Intent game = new Intent(LobbyActivity.this, GameActivity.class);

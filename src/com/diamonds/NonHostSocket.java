@@ -2,18 +2,16 @@ package com.diamonds;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-
-import android.provider.SyncStateContract.Constants;
+import java.nio.charset.Charset;
 import android.util.Log;
 
 public class NonHostSocket extends Thread {
 
 	public static NonHostSocket globalSocket = null;
-	
+
 	OnCommunication comListener;
 	Socket sock;
 	String ip;
@@ -23,7 +21,7 @@ public class NonHostSocket extends Thread {
 		this.comListener = comListener;
 		this.ip = mIp;
 		this.name = name;
-		
+
 		globalSocket = this;
 	}
 
@@ -33,11 +31,11 @@ public class NonHostSocket extends Thread {
 			sock = new Socket();
 			sock.connect(new InetSocketAddress(ip, CONSTANTS.SOCKET_Port));
 			Log.d(MainActivity.tag, "NonHostSocket connected");
-			
-			send(CONSTANTS.SOCKET_SendUsername+this.name);
+
+			send(CONSTANTS.SOCKET_SendUsername + this.name);
 		} catch (Exception e) {
-			Log.d(MainActivity.tag,
-					"NonHostSocket Creation Error m: " + e.getMessage());
+			Log.e(MainActivity.tag, "NonHostSocket Creation Error m", e);
+			return;
 		}
 		try {
 			int tries = 10;
@@ -47,35 +45,39 @@ public class NonHostSocket extends Thread {
 					byte[] lengthBuffer = new byte[4];
 					sock.getInputStream().read(lengthBuffer);
 					int length = convertFromBytes(lengthBuffer);
-					
-					Log.d(MainActivity.tag,"SocketReply reading:"+length);
-					
+
+					Log.d(MainActivity.tag, "SocketReply ["+ this.name+"] reading:" + length
+							+ "|" + new String(lengthBuffer,Charset.forName("UTF-8")));
+					if (length == 0) {
+
+						closeSocket();
+					}
+
 					if (length > 0) {
-						final byte[] buffer = new byte[length];
+						byte[] buffer = new byte[length];
 						sock.getInputStream().read(buffer);
 
-						comListener.onRecv(new String(buffer), 0);
+						comListener.onRecv(new String(buffer,Charset.forName("UTF-8")), 0);
 
 					} else {
 						Thread.sleep(10);
 					}
-					
-					if(!sock.isConnected()){
+
+					if (!sock.isConnected()) {
 						closeSocket();
 					}
-					
+
 				} catch (Exception e) {
 					if (tries == 0) {
 						throw e;
 					}
 					tries--;
-					Log.d(MainActivity.tag,
-							"NonHostSocket err e:" + e.getMessage());
+					Log.e(MainActivity.tag, "NonHostSocket err", e);
 				}
 
 			}
 		} catch (Exception e) {
-			Log.d(MainActivity.tag, "A nonHostSocket Died m:" + e.getMessage());
+			Log.e(MainActivity.tag, "A nonHostSocket Died", e);
 		}
 	}
 
@@ -83,26 +85,31 @@ public class NonHostSocket extends Thread {
 		OutputStream outputStream;
 		try {
 			outputStream = sock.getOutputStream();
-			outputStream.write(convertToBytes(msg.length()));
-			(new PrintStream(outputStream)).print(msg);
 			
+			byte[] message = msg.getBytes(Charset.forName("UTF-8"));
+			
+			outputStream.write(convertToBytes(message.length));
+			outputStream.write(message);
+			
+			Log.d(MainActivity.tag,"NonHostSocket ["+name+"] sent a message of length ["+message.length+"]");
+
 		} catch (IOException e) {
-			Log.d(MainActivity.tag, "NonHostSocket send e:" + e.getMessage());
+			Log.e(MainActivity.tag, "NonHostSocket send", e);
 		}
 
 	}
-	
-	public byte[] convertToBytes(int i){
+
+	public byte[] convertToBytes(int i) {
 		ByteBuffer b = ByteBuffer.allocate(4);
 		b.putInt(i);
 		return b.array();
 	}
-	
-	public int convertFromBytes(byte[] b){
+
+	public int convertFromBytes(byte[] b) {
 		return ByteBuffer.wrap(b).getInt();
 	}
-	
-	public void closeSocket(){
+
+	public void closeSocket() {
 		comListener.onDisconnect(null);
 		try {
 			sock.close();

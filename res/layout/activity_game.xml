@@ -6,9 +6,34 @@
     android:orientation="vertical" >
 
     <RelativeLayout
+        android:id="@+id/game_table_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="5" >
+
+        <Button
+            android:id="@+id/game_table_bid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="88dp"
+            android:visibility="invisible"
+            android:text="Bid" />
+
+        <EditText
+            android:id="@+id/game_table_bid_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:ems="10"
+            android:hint="bid"
+            android:visibility="invisible"
+            android:inputType="numberSigned" >
+
+            <requestFocus />
+        </EditText>
+
     </RelativeLayout>
 
     <LinearLayout

@@ -11,6 +11,14 @@ public class Card implements Comparable<Card> {
 		this.suit = suit;
 		this.value = value;
 	}
+	
+	public Card(String s){
+		String suit = s.split(";")[0];
+		String value = s.split(";")[1];
+		
+		this.suit = Suit.valueOf(suit);
+		this.value = Value.valueOf(value);
+	}
 
 	public int getPoints() {
 		int value = 0;
@@ -51,6 +59,11 @@ public class Card implements Comparable<Card> {
 			return this.value.compareTo(o.value);
 		}
 		return 0;
+	}
+	
+	@Override
+	public String toString() {
+		return this.suit.toString()+";"+this.value.toString();
 	}
 
 }

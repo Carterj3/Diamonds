@@ -7,8 +7,13 @@ public class CONSTANTS {
 	public static final String SOCKET_SendUsernames = "SendUsernames:";
 	public static final String SOCKET_SendChat = "SendChat:";
 	public static final String SOCKET_StartGame = "StartGame";
-
+	public static final String SOCKET_SendHand = "SendHand:";
+	public static final String SOCKET_IsReady = "IsReady";
+	public static final String SOCKET_SendBid = "SendBid:";
+	
+	
 	public static final int SOCKET_Port = 8080;
+	
 	
 	public static boolean strncmp(String actual, String expected) {
 		if (actual.length() < expected.length()) {

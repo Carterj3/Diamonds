@@ -6,9 +6,9 @@ package org.rosehulman.edu.carterj3;
  * @author carterj3
  * 
  */
-public class StartGame extends GameAction {
+public class StartGameAction extends GameAction {
 	
-	public StartGame(){
+	public StartGameAction(){
 		
 	}
 

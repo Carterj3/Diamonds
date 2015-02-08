@@ -290,7 +290,7 @@ public class GameEngine {
 	}
 
 	private void initializedHandler(GameAction action) {
-		if (action.getClass() == StartGame.class) {
+		if (action.getClass() == StartGameAction.class) {
 			// Generate a deck
 			this.deck = new Deck();
 			this.order = new ArrayList<Player>(4);
@@ -306,12 +306,27 @@ public class GameEngine {
 	}
 
 	private void unitializedHandler(GameAction action) {
-		if (action.getClass() == InitGame.class) {
-			player1 = ((InitGame) action).player1;
-			player2 = ((InitGame) action).player2;
-			player3 = ((InitGame) action).player3;
-			player4 = ((InitGame) action).player4;
-			this.setState(GameState.INITIALIZED);
+		if (action.getClass() == InitGameAction.class) {
+			InitGameAction initGame = ((InitGameAction) action);
+			
+			switch(initGame.position){
+			case 0:
+				player1 = initGame.player;
+				break;
+			case 1:
+				player2 = initGame.player;
+				break;
+			case 2:
+				player3 = initGame.player;
+				break;
+			case 3:
+				player4 = initGame.player;
+				break;
+			}
+			if(player1 != null && player2 != null && player3 != null && player4 != null){
+				this.setState(GameState.INITIALIZED);
+			}
+			
 		}
 	}
 
