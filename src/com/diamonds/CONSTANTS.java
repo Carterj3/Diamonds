@@ -10,6 +10,9 @@ public class CONSTANTS {
 	public static final String SOCKET_SendHand = "SendHand:";
 	public static final String SOCKET_IsReady = "IsReady";
 	public static final String SOCKET_SendBid = "SendBid:";
+	public static final String SOCKET_YourTurn = "YourTurn:";
+	public static final String SOCKET_PlayCard = "PlayCard:";
+	public static final String SOCKET_PlayedCard = "PlayedCard:";
 	
 	
 	public static final int SOCKET_Port = 8080;

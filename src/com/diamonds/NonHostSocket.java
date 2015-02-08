@@ -27,16 +27,19 @@ public class NonHostSocket extends Thread {
 
 	@Override
 	public void run() {
+
 		try {
 			sock = new Socket();
 			sock.connect(new InetSocketAddress(ip, CONSTANTS.SOCKET_Port));
 			Log.d(MainActivity.tag, "NonHostSocket connected");
 
 			send(CONSTANTS.SOCKET_SendUsername + this.name);
-		} catch (Exception e) {
-			Log.e(MainActivity.tag, "NonHostSocket Creation Error m", e);
-			return;
+		} catch (IOException e1) {
+			Log.e(MainActivity.tag, "NonHostSocket Creation Error m [" + name
+					+ "]", e1);
+			closeSocket();
 		}
+
 		try {
 			int tries = 10;
 			while (true) {
@@ -46,8 +49,14 @@ public class NonHostSocket extends Thread {
 					sock.getInputStream().read(lengthBuffer);
 					int length = convertFromBytes(lengthBuffer);
 
-					Log.d(MainActivity.tag, "SocketReply ["+ this.name+"] reading:" + length
-							+ "|" + new String(lengthBuffer,Charset.forName("UTF-8")));
+					Log.d(MainActivity.tag,
+							"SocketReply ["
+									+ this.name
+									+ "] reading:"
+									+ length
+									+ "|"
+									+ new String(lengthBuffer, Charset
+											.forName("UTF-8")));
 					if (length == 0) {
 
 						closeSocket();
@@ -57,7 +66,9 @@ public class NonHostSocket extends Thread {
 						byte[] buffer = new byte[length];
 						sock.getInputStream().read(buffer);
 
-						comListener.onRecv(new String(buffer,Charset.forName("UTF-8")), 0);
+						comListener
+								.onRecv(new String(buffer, Charset
+										.forName("UTF-8")), 0);
 
 					} else {
 						Thread.sleep(10);
@@ -67,17 +78,18 @@ public class NonHostSocket extends Thread {
 						closeSocket();
 					}
 
-				} catch (Exception e) {
+				} catch (IOException | InterruptedException e) {
 					if (tries == 0) {
 						throw e;
 					}
 					tries--;
-					Log.e(MainActivity.tag, "NonHostSocket err", e);
+					Log.e(MainActivity.tag, "NonHostSocket err [" + name + "]",
+							e);
 				}
 
 			}
-		} catch (Exception e) {
-			Log.e(MainActivity.tag, "A nonHostSocket Died", e);
+		} catch (IOException | InterruptedException e) {
+			Log.e(MainActivity.tag, "A nonHostSocket Died [" + name + "]", e);
 		}
 	}
 
@@ -85,16 +97,17 @@ public class NonHostSocket extends Thread {
 		OutputStream outputStream;
 		try {
 			outputStream = sock.getOutputStream();
-			
+
 			byte[] message = msg.getBytes(Charset.forName("UTF-8"));
-			
+
 			outputStream.write(convertToBytes(message.length));
 			outputStream.write(message);
-			
-			Log.d(MainActivity.tag,"NonHostSocket ["+name+"] sent a message of length ["+message.length+"]");
+
+			Log.d(MainActivity.tag, "NonHostSocket [" + name
+					+ "] sent a message of length [" + message.length + "]");
 
 		} catch (IOException e) {
-			Log.e(MainActivity.tag, "NonHostSocket send", e);
+			Log.e(MainActivity.tag, "NonHostSocket send [" + name + "]", e);
 		}
 
 	}
@@ -114,7 +127,7 @@ public class NonHostSocket extends Thread {
 		try {
 			sock.close();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			Log.e(MainActivity.tag, "NonHostSocket close [" + name + "]", e1);
 		}
 	}
 

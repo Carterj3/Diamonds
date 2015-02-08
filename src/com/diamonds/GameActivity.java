@@ -9,6 +9,7 @@ import org.rosehulman.edu.carterj3.DealCardsAction;
 import org.rosehulman.edu.carterj3.GameEngine;
 import org.rosehulman.edu.carterj3.GameEngine.GameState;
 import org.rosehulman.edu.carterj3.InitGameAction;
+import org.rosehulman.edu.carterj3.PlayCardAction;
 import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;
 import org.rosehulman.edu.carterj3.StartGameAction;
@@ -23,6 +24,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 ;
 
@@ -32,6 +34,8 @@ public class GameActivity extends Activity implements OnCommunication,
 	private String mIp;
 	private String mUsername;
 	private boolean mIsHost;
+
+	private boolean isBid = true;
 
 	private TreeMap<Integer, Player> socketMap = new TreeMap<Integer, Player>();
 
@@ -44,6 +48,21 @@ public class GameActivity extends Activity implements OnCommunication,
 
 	ArrayList<Card> mHand;
 	Card leadCard;
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		Log.d(MainActivity.tag, "OnDestroy G " + mUsername);
+
+		for (Player p : socketMap.values()) {
+			p.socket.closeSocket();
+		}
+
+		if (sock != null) {
+			sock.closeSocket();
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +79,9 @@ public class GameActivity extends Activity implements OnCommunication,
 		chatInput = ((EditText) findViewById(R.id.game_chat_edittext));
 
 		((Button) findViewById(R.id.game_chat_button)).setOnClickListener(this);
-		//((Button) findViewById(R.id.game_table_bid_button)).setOnClickListener(this);
-		
+		((Button) findViewById(R.id.game_table_bid_button))
+				.setOnClickListener(this);
+
 		// set sockets
 		if (mIsHost) {
 			SocketServerThread.globalSocket.comListener = this;
@@ -138,7 +158,70 @@ public class GameActivity extends Activity implements OnCommunication,
 	public void onRecv(final String msg, final int id) {
 		Log.d(MainActivity.tag, "Game [" + id + "] onRecv : " + msg);
 
-		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendBid)) {
+		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
+			this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					Toast.makeText(GameActivity.this, "Your turn!",
+							Toast.LENGTH_SHORT).show();
+				}
+
+			});
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayedCard)) {
+			final Integer player = Integer.parseInt(msg.split(":")[1]);
+			final String card = msg.split(":")[2];
+
+			this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					switch (player) {
+					case 0:
+						((TextView) findViewById(R.id.game_table_player1_card_textview))
+								.setText(card);
+						break;
+					case 1:
+						((TextView) findViewById(R.id.game_table_player2_card_textview))
+								.setText(card);
+						break;
+					case 2:
+						((TextView) findViewById(R.id.game_table_player3_card_textview))
+								.setText(card);
+						break;
+					case 3:
+						((TextView) findViewById(R.id.game_table_player4_card_textview))
+								.setText(card);
+						break;
+					}
+				}
+			});
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayCard)) {
+			Player p = socketMap.get(id);
+			String card_str = msg.split(":")[1];
+			PlayCardAction cardAction = new PlayCardAction(new Card(card_str),
+					p);
+
+			if (!engine.HandleAction(cardAction)) {
+				try {
+					p.socket.send(CONSTANTS.SOCKET_SendHand
+							+ convertHandToString(engine.getPlayer(p).hand));
+				} catch (PlayerNotFoundException e) {
+				}
+				return;
+			}
+
+			sendToPlayers(CONSTANTS.SOCKET_PlayedCard + id + ":" + card_str);
+
+			if (engine.getState() == GameState.ROUND_END) {
+				Log.d(MainActivity.tag, "Round over");
+				onRecv(CONSTANTS.SOCKET_SendChat + "Round over", 0);
+			} else {
+				Player lead = socketMap.get(engine.order.get(0).position);
+				lead.socket.send(CONSTANTS.SOCKET_YourTurn);
+			}
+
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendBid)) {
 			Player p = socketMap.get(id);
 			Integer bid = Integer.parseInt(msg.split(":")[1]);
 
@@ -148,6 +231,13 @@ public class GameActivity extends Activity implements OnCommunication,
 			if (engine.getState() == GameState.ROUND_START) {
 				Log.d(MainActivity.tag, "Everybody bid");
 				onRecv(CONSTANTS.SOCKET_SendChat + "Everybody bid", 0);
+
+				isBid = false;
+				
+				Player lead = socketMap.get(engine.order.get(0).position);
+				lead.socket.send(CONSTANTS.SOCKET_YourTurn);
+				
+				
 			}
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_IsReady)) {
 			Player p = socketMap.get(id);
@@ -163,16 +253,25 @@ public class GameActivity extends Activity implements OnCommunication,
 			}
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendHand)) {
-			String hand_str = msg.split(":")[1];
+			final String hand_str = msg.split(":")[1];
 			mHand = convertStringToHand(hand_str);
-			addChatMessage(id + "::" + hand_str);
 
-			((Button) findViewById(R.id.game_table_bid_button))
-					.setVisibility(View.VISIBLE);
-			((EditText) findViewById(R.id.game_table_bid_edittext))
-					.setVisibility(View.VISIBLE);
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					((Button) findViewById(R.id.game_table_bid_button))
+							.setVisibility(View.VISIBLE);
+					((EditText) findViewById(R.id.game_table_bid_edittext))
+							.setVisibility(View.VISIBLE);
+
+					((TextView) findViewById(R.id.game_table_player_hand_textview))
+							.setText(hand_str);
+				}
+			});
 
 			// -- display hand
+			// ???
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
@@ -202,7 +301,9 @@ public class GameActivity extends Activity implements OnCommunication,
 
 		Log.d(MainActivity.tag, "Lobby sendToPlayers l:" + socketMap.size());
 		for (Player p : socketMap.values()) {
-			p.socket.send(msg);
+			if (p.position != 0) {
+				p.socket.send(msg);
+			}
 		}
 	}
 
@@ -241,8 +342,16 @@ public class GameActivity extends Activity implements OnCommunication,
 					+ (newChat.equals("") ? " " : newChat));
 			break;
 		case R.id.game_table_bid_button:
-			String bid = ((EditText)findViewById(R.id.game_table_bid_edittext)).getText().toString();
-			sendToHost(CONSTANTS.SOCKET_SendBid+bid);
+			String bid = ((EditText) findViewById(R.id.game_table_bid_edittext))
+					.getText().toString();
+			if (isBid) {
+
+				sendToHost(CONSTANTS.SOCKET_SendBid + bid);
+			} else {
+				sendToHost(CONSTANTS.SOCKET_PlayCard
+						+ mHand.get(Integer.parseInt(bid)));
+			}
+
 			break;
 		default:
 			break;

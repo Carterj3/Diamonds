@@ -26,11 +26,26 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	private TreeMap<Integer, Player> socketMap = new TreeMap<Integer, Player>();
 	private Stack<Player> availableSlots = new Stack<Player>();
 	private NonHostSocket sock;
-	
+
 	public static final String KEY_ISHOST = "ISHOST";
 	public static final String KEY_IP = "IP";
 	public static final String KEY_USERNAME = "USERNAME";
-	
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		Log.d(MainActivity.tag, "OnDestroy L " + mUsername);
+
+		for (Player p : socketMap.values()) {
+			p.socket.closeSocket();
+		}
+
+		if (sock != null) {
+			sock.closeSocket();
+		}
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,21 +65,22 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		if (mIsHost) {
 			Thread socketServerThread = new Thread(new SocketServerThread(this));
 			socketServerThread.start();
-			((TextView) findViewById(R.id.lobby_player1_textview)).setText(mUsername);
-			
+			((TextView) findViewById(R.id.lobby_player1_textview))
+					.setText(mUsername);
+
 			// its a stack so add in reverse order
-			availableSlots.add(new Player("Player 4",3));
-			availableSlots.add(new Player("Player 3",2));
-			availableSlots.add(new Player("Player 2",1));
-			
-			Bot.bot1 = new Bot("Bot 1",1);
+			availableSlots.add(new Player("Player 4", 3));
+			availableSlots.add(new Player("Player 3", 2));
+			availableSlots.add(new Player("Player 2", 1));
+
+			Bot.bot1 = new Bot("Bot 1", 1);
 			Bot.bot1.StartBot();
-			
-			Bot.bot2 = new Bot("Bot 2",2);
+
+			Bot.bot2 = new Bot("Bot 2", 2);
 			Bot.bot2.StartBot();
-			
+
 		} else {
-			sock = new NonHostSocket(this, mIp,mUsername);
+			sock = new NonHostSocket(this, mIp, mUsername);
 			sock.start();
 
 			try {
@@ -76,12 +92,12 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onRecv(final String msg, final int position) {
-		Log.d(MainActivity.tag, "Lobby ["+position+"] onRecv : " + msg);
+		Log.d(MainActivity.tag, "Lobby [" + position + "] onRecv : " + msg);
 
 		// Request for players
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsernames)) {
 			// If somebody asks for all of the usernames, send them
-			
+
 			String p1 = mUsername;
 			String p2 = getPlayer(1);
 			String p3 = getPlayer(2);
@@ -90,11 +106,11 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			Log.d(MainActivity.tag, CONSTANTS.SOCKET_SendUsernames + p1 + ";"
 					+ p2 + ";" + p3 + ";" + p4);
 
-			Log.d(MainActivity.tag,"GetUsernames id["+position+"]");
+			Log.d(MainActivity.tag, "GetUsernames id[" + position + "]");
 
-			sendToPlayers(CONSTANTS.SOCKET_SendUsernames + p1 + ";" + p2 + ";" + p3
-					+ ";" + p4);
-			
+			sendToPlayers(CONSTANTS.SOCKET_SendUsernames + p1 + ";" + p2 + ";"
+					+ p3 + ";" + p4);
+
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsernames)) {
 			String[] players = msg.split(":")[1].split(";");
 
@@ -103,53 +119,62 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			final String p3 = players[2];
 			final String p4 = players[3];
 
-		
 			runOnUiThread(new Runnable() {
-				
+
 				@Override
 				public void run() {
-					((TextView) findViewById(R.id.lobby_player1_textview)).setText(p1);
-					((TextView) findViewById(R.id.lobby_player2_textview)).setText(p2);
-					((TextView) findViewById(R.id.lobby_player3_textview)).setText(p3);
-					((TextView) findViewById(R.id.lobby_player4_textview)).setText(p4);
+					((TextView) findViewById(R.id.lobby_player1_textview))
+							.setText(p1);
+					((TextView) findViewById(R.id.lobby_player2_textview))
+							.setText(p2);
+					((TextView) findViewById(R.id.lobby_player3_textview))
+							.setText(p3);
+					((TextView) findViewById(R.id.lobby_player4_textview))
+							.setText(p4);
 				}
 			});
-			
-			Log.d(MainActivity.tag, "recv_ "+msg);
-			
-			
+
+			Log.d(MainActivity.tag, "recv_ " + msg);
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsername)) {
 			// If somebody asks for our username, send it back
-			Log.d(MainActivity.tag,"!!! ["+mIsHost+"] ["+mUsername+"]");
-			socketMap.get(position).socket.send(CONSTANTS.SOCKET_SendUsername + mUsername);
+			if(!mIsHost){
+				return;
+			}
+			Log.d(MainActivity.tag, "!!! [" + mIsHost + "] [" + mUsername + "]");
+			socketMap.get(position).socket.send(CONSTANTS.SOCKET_SendUsername
+					+ mUsername);
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsername)) {
 			// If somebody send us their username, we should use it
 			final String username = msg.split(":")[1];
-			
+
 			socketMap.get(position).name = username;
-			
+
 			this.runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
 					switch (position) {
 					case 0:
-						((TextView) findViewById(R.id.lobby_player1_textview)).setText(username);
+						((TextView) findViewById(R.id.lobby_player1_textview))
+								.setText(username);
 						break;
 					case 1:
-						((TextView) findViewById(R.id.lobby_player2_textview)).setText(username);
+						((TextView) findViewById(R.id.lobby_player2_textview))
+								.setText(username);
 						break;
 					case 2:
-						((TextView) findViewById(R.id.lobby_player3_textview)).setText(username);
+						((TextView) findViewById(R.id.lobby_player3_textview))
+								.setText(username);
 						break;
 					case 3:
-						((TextView) findViewById(R.id.lobby_player4_textview)).setText(username);
+						((TextView) findViewById(R.id.lobby_player4_textview))
+								.setText(username);
 						break;
 					}
 				}
 			});
-			
+
 			// Update everybody
 			this.onRecv(CONSTANTS.SOCKET_GetUsernames, 0);
 
@@ -157,6 +182,11 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			// If somebody sends us a chat msg we should use display & forward
 			// it
 			sendToPlayers(msg);
+
+			if (msg.split(":")[1].equals("")) {
+				return;
+			}
+
 			this.runOnUiThread(new Runnable() {
 
 				@Override
@@ -166,20 +196,21 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 				}
 			});
-			
-			if(msg.split(":")[1].equals("Start") && mIsHost){
-				Log.d(MainActivity.tag,"LobbyActivity going to start game : "+position);
+
+			if (msg.split(":")[1].equals("Start") && mIsHost) {
+				Log.d(MainActivity.tag, "LobbyActivity going to start game : "
+						+ position);
 				onRecv(CONSTANTS.SOCKET_StartGame, 0);
 			}
 
-		} else if(CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)){
-			
-			Log.d(MainActivity.tag,"LobbyActivity starting game : "+position);
-			
-			if(mIsHost){
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)) {
+
+			Log.d(MainActivity.tag, "LobbyActivity starting game : " + position);
+
+			if (mIsHost) {
 				SocketServerThread.globalMap = this.socketMap;
 			}
-			
+
 			Intent game = new Intent(LobbyActivity.this, GameActivity.class);
 			game.putExtra(KEY_IP, mIp);
 			game.putExtra(KEY_ISHOST, mIsHost);
@@ -191,9 +222,9 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	private String getPlayer(int i) {
 		Player p = socketMap.get(i);
-		if(p==null){
-			return "Player "+i;
-		}else{
+		if (p == null) {
+			return "Player " + i;
+		} else {
 			return p.name;
 		}
 	}
@@ -219,18 +250,19 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	}
 
 	@Override
-	public Player onConnection(SocketServerReplyThread newSocket, int id) throws PlayerNotFoundException {
-		if(availableSlots.size() == 0){
+	public Player onConnection(SocketServerReplyThread newSocket, int id)
+			throws PlayerNotFoundException {
+		if (availableSlots.size() == 0) {
 			throw new PlayerNotFoundException();
 		}
-		
+
 		Player newPlayer = availableSlots.pop();
 		newPlayer.socket = newSocket;
 		newPlayer.socketID = id;
-		
+
 		socketMap.put(newPlayer.position, newPlayer);
 		newSocket.send(CONSTANTS.SOCKET_GetUsername);
-		
+
 		return newPlayer;
 
 	}
@@ -245,15 +277,16 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onDisconnect(Player player) {
-		
-		if(!mIsHost){
+
+		if (!mIsHost) {
 			// Go back to welcome screen
 			finish();
 			return;
 		}
-		
+
 		socketMap.remove(player.position);
-		availableSlots.add(new Player("Player "+(player.position+1), player.position));
+		availableSlots.add(new Player("Player " + (player.position + 1),
+				player.position));
 		player = null;
 	}
 

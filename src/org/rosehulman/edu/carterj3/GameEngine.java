@@ -33,40 +33,32 @@ public class GameEngine {
 		this.setState(GameState.UNITIALIZED);
 	}
 
-	public void HandleAction(GameAction action) {
+	public Boolean HandleAction(GameAction action) {
 		switch (this.getState()) {
 		case UNITIALIZED:
-			unitializedHandler(action);
-			break;
+			return unitializedHandler(action);
 		case INITIALIZED:
-			initializedHandler(action);
-			break;
+			return initializedHandler(action);
 		case WAITING_FOR_HANDS:
-			waitingForHandsHandler(action);
-			break;
+			return waitingForHandsHandler(action);
 		case WAITING_FOR_BIDS:
-			waitingForBidHandler(action);
-			break;
+			return waitingForBidHandler(action);
 		case ROUND_START:
-			roundStartHandler(action);
-			break;
+			return roundStartHandler(action);
 		case TRICK_START:
-			roundOccuringHandler(action);
-			break;
+			return roundOccuringHandler(action);
 		case TRICK_OCCURING:
-			roundOccuringHandler(action);
-			break;
+			return roundOccuringHandler(action);
 		case ROUND_END:
-			roundEndHandler(action);
-			break;
+			return roundEndHandler(action);
 		case GAME_OVER:
-			break;
+			return false;
 		default:
-			break;
+			return false;
 		}
 	}
 
-	private void roundEndHandler(GameAction action) {
+	private boolean roundEndHandler(GameAction action) {
 
 		// Score all the players
 		for (Player p : order) {
@@ -82,16 +74,17 @@ public class GameEngine {
 			if (p.score >= CONSTANTS.POINTS_TO_WIN
 					|| p.score <= CONSTANTS.POINTS_TO_LOSE) {
 				this.setState(GameState.GAME_OVER);
-				return;
+				return true;
 			}
 		}
 		// have next person be the dealer
 		rotateOrder(lastDealer);
 		this.setState(GameState.WAITING_FOR_HANDS);
+		return true;
 
 	}
 
-	private void roundOccuringHandler(GameAction action) {
+	private boolean roundOccuringHandler(GameAction action) {
 		if (action.getClass() == PlayCardAction.class) {
 			PlayCardAction playCardAction = (PlayCardAction) action;
 
@@ -99,18 +92,18 @@ public class GameEngine {
 				Player player = getPlayer(playCardAction.player);
 				if (!(player.equals(order.get(0)))) {
 					// not their turn
-					return;
+					return false;
 				}
 
 				if (!(player.hand.contains(playCardAction.card))) {
 					// Player tried to play a card they didn't have
-					return;
+					return false;
 				}
 				// Is card out of suit and they have the suit?
 				if (pot.size() > 0 && playCardAction.card.suit != lead
 						&& playerHasSuit(lead, player)) {
 					// player must follow suit
-					return;
+					return false;
 				}
 				// Can they lead diamonds?
 				if (pot.size() == 0
@@ -120,7 +113,7 @@ public class GameEngine {
 								|| playerHasSuit(Suit.Heart, player) || playerHasSuit(
 									Suit.Spade, player))) {
 					// can't lead diamonds yet
-					return;
+					return false;
 				}
 				// Did they trump diamonds?
 				if (pot.size() > 0 && playCardAction.card.suit == Suit.Diamond) {
@@ -151,12 +144,16 @@ public class GameEngine {
 					} else {
 						this.setState(GameState.TRICK_START);
 					}
+					return true;
 				}
-
+				return true;
 			} catch (PlayerNotFoundException illigealPlayer) {
 				// Log this probably
+				return false;
 			}
+
 		}
+		return false;
 
 	}
 
@@ -189,18 +186,18 @@ public class GameEngine {
 		return false;
 	}
 
-	private void roundStartHandler(GameAction action) {
+	private boolean roundStartHandler(GameAction action) {
 		if (action.getClass() == PlayCardAction.class) {
 			PlayCardAction playCardAction = (PlayCardAction) action;
 			try {
 				Player player = getPlayer(playCardAction.player);
 				if (!(player.hand.contains(playCardAction.card))) {
 					// Player tried to play a card they didn't have
-					return;
+					return false;
 				}
 				if (!playCardAction.card.equals(CONSTANTS.TwoOfClubs)) {
 					// Player tried to play a card that doesn't start a round
-					return;
+					return false;
 				}
 				// Remove two of card from their hand
 				player.hand.remove(playCardAction.card);
@@ -211,10 +208,11 @@ public class GameEngine {
 				this.lead = Suit.Club;
 				this.setState(GameState.TRICK_OCCURING);
 			} catch (PlayerNotFoundException illigealPlayer) {
-				// Log this probably
+				return false;
 			}
-
+			return true;
 		}
+		return false;
 
 	}
 
@@ -257,7 +255,7 @@ public class GameEngine {
 		throw new PlayerNotFoundException();
 	}
 
-	private void waitingForBidHandler(GameAction action) {
+	private boolean waitingForBidHandler(GameAction action) {
 		if (action.getClass() == BidAction.class) {
 			BidAction bidAction = (BidAction) action;
 			Boolean allBid = true;
@@ -272,10 +270,12 @@ public class GameEngine {
 			if (allBid) {
 				this.setState(GameState.ROUND_START);
 			}
+			return true;
 		}
+		return false;
 	}
 
-	private void waitingForHandsHandler(GameAction action) {
+	private boolean waitingForHandsHandler(GameAction action) {
 		if (action.getClass() == DealCardsAction.class) {
 			int i = 0;
 			// Deal the cards
@@ -285,11 +285,13 @@ public class GameEngine {
 			}
 
 			this.setState(GameState.WAITING_FOR_BIDS);
+			return true;
 		}
+		return false;
 
 	}
 
-	private void initializedHandler(GameAction action) {
+	private boolean initializedHandler(GameAction action) {
 		if (action.getClass() == StartGameAction.class) {
 			// Generate a deck
 			this.deck = new Deck();
@@ -301,15 +303,17 @@ public class GameEngine {
 			// lets have a random start
 			Collections.shuffle(order, CONSTANTS.getSeed());
 			this.setState(GameState.WAITING_FOR_HANDS);
+			return true;
 		}
+		return false;
 
 	}
 
-	private void unitializedHandler(GameAction action) {
+	private boolean unitializedHandler(GameAction action) {
 		if (action.getClass() == InitGameAction.class) {
 			InitGameAction initGame = ((InitGameAction) action);
-			
-			switch(initGame.position){
+
+			switch (initGame.position) {
 			case 0:
 				player1 = initGame.player;
 				break;
@@ -323,11 +327,13 @@ public class GameEngine {
 				player4 = initGame.player;
 				break;
 			}
-			if(player1 != null && player2 != null && player3 != null && player4 != null){
+			if (player1 != null && player2 != null && player3 != null
+					&& player4 != null) {
 				this.setState(GameState.INITIALIZED);
 			}
-			
+			return true;
 		}
+		return false;
 	}
 
 	public GameState getState() {
