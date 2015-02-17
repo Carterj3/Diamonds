@@ -37,9 +37,13 @@ public class Bot implements OnCommunication {
 		Log.d(MainActivity.tag, "Bot [" + username + "] :: " + msg);
 
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
+			if ((hand != null) && (hand.size() == 0)) {
+				return;
+			}
+
 			Random rng = org.rosehulman.edu.carterj3.CONSTANTS.getSeed();
 			Card card = hand.get(rng.nextInt(hand.size()));
-			sock.send(CONSTANTS.SOCKET_PlayCard+card);
+			sock.send(CONSTANTS.SOCKET_PlayCard + card);
 		}
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)) {
 			sock.send(CONSTANTS.SOCKET_IsReady);
@@ -49,9 +53,11 @@ public class Bot implements OnCommunication {
 				send("I am alive");
 			}
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendHand)) {
-			send("Got a hand");
-
-			this.hand = GameActivity.convertStringToHand(msg.split(":")[1]);
+			if (msg.split(":").length == 1) {
+				this.hand = new ArrayList<Card>();
+			} else {
+				this.hand = GameActivity.convertStringToHand(msg.split(":")[1]);
+			}
 
 			sock.send(CONSTANTS.SOCKET_SendBid + (40 + position));
 		}

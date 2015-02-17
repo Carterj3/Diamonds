@@ -95,8 +95,9 @@ public class SocketServerReplyThread extends Thread {
 
 			outputStream.write(convertToBytes(message.length));
 			outputStream.write(message);
-			
-			Log.d(MainActivity.tag,"SocketReply ["+id+"] sent a message of length ["+message.length+"]");
+
+			Log.d(MainActivity.tag, "SocketReply [" + id
+					+ "] sent a message of length [" + message.length + "]");
 
 		} catch (IOException e) {
 			Log.d(MainActivity.tag, "PrintStream error e: " + e.getMessage());
@@ -109,7 +110,7 @@ public class SocketServerReplyThread extends Thread {
 		try {
 			sock.close();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			// e1.printStackTrace();
 		}
 	}
 

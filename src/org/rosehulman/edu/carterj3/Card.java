@@ -3,6 +3,10 @@ package org.rosehulman.edu.carterj3;
 import org.rosehulman.edu.carterj3.CONSTANTS.Suit;
 import org.rosehulman.edu.carterj3.CONSTANTS.Value;
 
+import android.util.Log;
+
+import com.diamonds.MainActivity;
+
 public class Card implements Comparable<Card> {
 	public Suit suit;
 	public Value value;

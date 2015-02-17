@@ -26,8 +26,6 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
-;
-
 public class GameActivity extends Activity implements OnCommunication,
 		OnClickListener {
 
@@ -56,7 +54,9 @@ public class GameActivity extends Activity implements OnCommunication,
 		Log.d(MainActivity.tag, "OnDestroy G " + mUsername);
 
 		for (Player p : socketMap.values()) {
-			p.socket.closeSocket();
+			if (p.socket != null) {
+				p.socket.closeSocket();
+			}
 		}
 
 		if (sock != null) {
@@ -118,7 +118,7 @@ public class GameActivity extends Activity implements OnCommunication,
 
 		// Add our hand to ourselfs
 		ArrayList<Card> hand = engine.player1.hand;
-		onRecv(convertHandToString(hand), 0);
+		onRecv(CONSTANTS.SOCKET_SendHand + convertHandToString(hand), 0);
 		// For each player send them their hand
 		hand = engine.player2.hand;
 		sendHand(hand, 1);
@@ -136,22 +136,35 @@ public class GameActivity extends Activity implements OnCommunication,
 		for (Card c : hand) {
 			s = s + " " + c.toString();
 		}
+
+		if (s.equals("")) {
+			return s;
+		}
 		s = s.substring(1);
-		String msg = CONSTANTS.SOCKET_SendHand + s;
+		String msg = s;
 		return msg;
 	}
 
 	public static ArrayList<Card> convertStringToHand(String str) {
 		ArrayList<Card> hand = new ArrayList<Card>(13);
-		for (String s : str.split(" ")) {
-			hand.add(new Card(s));
+
+		if (str.equals("")) {
+			return hand;
+		}
+
+		try {
+			for (String s : str.split(" ")) {
+				hand.add(new Card(s));
+			}
+		} catch (Exception e) {
+			Log.e(MainActivity.tag, "convertStringToHand " + str, e);
 		}
 		return hand;
 	}
 
 	private void sendHand(ArrayList<Card> hand, Integer player) {
-		String msg = convertHandToString(hand);
-		socketMap.get(player).socket.send(msg);
+		String msg = CONSTANTS.SOCKET_SendHand + convertHandToString(hand);
+		sendToSocket(socketMap.get(player), msg);
 	}
 
 	@Override
@@ -159,6 +172,8 @@ public class GameActivity extends Activity implements OnCommunication,
 		Log.d(MainActivity.tag, "Game [" + id + "] onRecv : " + msg);
 
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
+			isBid = false;
+
 			this.runOnUiThread(new Runnable() {
 
 				@Override
@@ -168,7 +183,55 @@ public class GameActivity extends Activity implements OnCommunication,
 				}
 
 			});
-		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayedCard)) {
+		}
+
+		else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_ScoreSummary)) {
+			final String[] splits = msg.split(":")[1].split(" ");
+			isBid = true;
+
+			this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					((TextView) findViewById(R.id.game_player1_score_textview))
+							.setText(splits[0]);
+					((TextView) findViewById(R.id.game_player2_score_textview))
+							.setText(splits[1]);
+					((TextView) findViewById(R.id.game_player3_score_textview))
+							.setText(splits[2]);
+					((TextView) findViewById(R.id.game_player4_score_textview))
+							.setText(splits[3]);
+
+				}
+			});
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_TrickSummary)) {
+			final String[] splits = msg.split(":")[1].split(" ");
+
+			this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					((TextView) findViewById(R.id.game_table_player1_card_textview))
+							.setText("");
+					((TextView) findViewById(R.id.game_table_player2_card_textview))
+							.setText("");
+					((TextView) findViewById(R.id.game_table_player3_card_textview))
+							.setText("");
+					((TextView) findViewById(R.id.game_table_player4_card_textview))
+							.setText("");
+
+					((TextView) findViewById(R.id.game_player1_points_textview))
+							.setText(splits[0]);
+					((TextView) findViewById(R.id.game_player2_points_textview))
+							.setText(splits[1]);
+					((TextView) findViewById(R.id.game_player3_points_textview))
+							.setText(splits[2]);
+					((TextView) findViewById(R.id.game_player4_points_textview))
+							.setText(splits[3]);
+
+				}
+			});
+		}
+
+		else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayedCard)) {
 			final Integer player = Integer.parseInt(msg.split(":")[1]);
 			final String card = msg.split(":")[2];
 
@@ -204,24 +267,62 @@ public class GameActivity extends Activity implements OnCommunication,
 
 			if (!engine.HandleAction(cardAction)) {
 				try {
-					p.socket.send(CONSTANTS.SOCKET_SendHand
+					Player lead = socketMap.get(engine.order.get(0).position);
+					sendToSocket(p, CONSTANTS.SOCKET_SendHand
 							+ convertHandToString(engine.getPlayer(p).hand));
+					sendToSocket(lead, CONSTANTS.SOCKET_YourTurn);
+
 				} catch (PlayerNotFoundException e) {
+					Log.e(MainActivity.tag, "SOCKET_PlayCard PNFE", e);
 				}
 				return;
 			}
 
-			sendToPlayers(CONSTANTS.SOCKET_PlayedCard + id + ":" + card_str);
+			try {
+				sendToSocket(p, CONSTANTS.SOCKET_SendHand
+						+ convertHandToString(engine.getPlayer(p).hand));
+			} catch (PlayerNotFoundException e) {
+				Log.e(MainActivity.tag, "SOCKET_PlayCard PNFE", e);
+				return;
+			}
 
-			if (engine.getState() == GameState.ROUND_END) {
+			sendToPlayers(CONSTANTS.SOCKET_PlayedCard + id + ":" + card_str);
+			onRecv(CONSTANTS.SOCKET_PlayedCard + id + ":" + card_str, 0);
+
+			switch (engine.getState()) {
+			case ROUND_END:
 				Log.d(MainActivity.tag, "Round over");
 				onRecv(CONSTANTS.SOCKET_SendChat + "Round over", 0);
-			} else {
+
+				StartGameAction newRound = new StartGameAction();
+				engine.HandleAction(newRound);
+
+				updateScore();
+				updateTricks();
+
+				switch (engine.getState()) {
+				case GAME_OVER:
+					Log.d(MainActivity.tag, "Game over");
+					onRecv(CONSTANTS.SOCKET_SendChat + "Game over", 0);
+					break;
+				default:
+					engine.HandleAction(newRound);
+					dealCards();
+				}
+
+				break;
+			case TRICK_START:
+				updateTricks();
+			default:
 				Player lead = socketMap.get(engine.order.get(0).position);
-				lead.socket.send(CONSTANTS.SOCKET_YourTurn);
+				sendToSocket(lead, CONSTANTS.SOCKET_YourTurn);
 			}
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendBid)) {
+			if (!(engine.getState() == GameState.WAITING_FOR_BIDS)) {
+				return;
+			}
+
 			Player p = socketMap.get(id);
 			Integer bid = Integer.parseInt(msg.split(":")[1]);
 
@@ -232,12 +333,9 @@ public class GameActivity extends Activity implements OnCommunication,
 				Log.d(MainActivity.tag, "Everybody bid");
 				onRecv(CONSTANTS.SOCKET_SendChat + "Everybody bid", 0);
 
-				isBid = false;
-				
 				Player lead = socketMap.get(engine.order.get(0).position);
-				lead.socket.send(CONSTANTS.SOCKET_YourTurn);
-				
-				
+				sendToSocket(lead, CONSTANTS.SOCKET_YourTurn);
+
 			}
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_IsReady)) {
 			Player p = socketMap.get(id);
@@ -253,9 +351,19 @@ public class GameActivity extends Activity implements OnCommunication,
 			}
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendHand)) {
-			final String hand_str = msg.split(":")[1];
+			String hand_str_t = "";
+			if (msg.split(":").length > 1) {
+				hand_str_t = msg.split(":")[1];
+				Log.d(MainActivity.tag, "Hand length [" + mUsername + "] "
+						+ hand_str_t.split(" ").length);
+			}
+
+			final String hand_str = hand_str_t;
+
 			mHand = convertStringToHand(hand_str);
 
+			// -- display hand
+			// ???
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -270,8 +378,6 @@ public class GameActivity extends Activity implements OnCommunication,
 				}
 			});
 
-			// -- display hand
-			// ???
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
@@ -281,6 +387,39 @@ public class GameActivity extends Activity implements OnCommunication,
 
 		}
 
+	}
+
+	private void updateScore() {
+		String s = "";
+		for (int j = 0; j <= 3; j++) {
+			for (Player player : engine.order) {
+				if (player.position == j) {
+					s = s + " " + player.score;
+				}
+			}
+
+		}
+		s = s.substring(1);
+
+		sendToPlayers(CONSTANTS.SOCKET_ScoreSummary + s);
+		onRecv(CONSTANTS.SOCKET_ScoreSummary + s, 0);
+	}
+
+	private void updateTricks() {
+		String s = "";
+
+		for (int j = 0; j <= 3; j++) {
+			for (Player player : engine.order) {
+				if (player.position == j) {
+					s = s + " " + player.points;
+				}
+			}
+
+		}
+		s = s.substring(1);
+
+		sendToPlayers(CONSTANTS.SOCKET_TrickSummary + s);
+		onRecv(CONSTANTS.SOCKET_TrickSummary + s, 0);
 	}
 
 	private void addChatMessage(final String message) {
@@ -307,6 +446,14 @@ public class GameActivity extends Activity implements OnCommunication,
 		}
 	}
 
+	public void sendToSocket(Player p, String msg) {
+		if (p.position == 0) {
+			onRecv(msg, 0);
+		} else {
+			p.socket.send(msg);
+		}
+	}
+
 	public void sendToHost(String msg) {
 		if (mIsHost) {
 			// sendToPlayers(msg);
@@ -328,7 +475,9 @@ public class GameActivity extends Activity implements OnCommunication,
 		if (!mIsHost) {
 			return;
 		}
-		socketMap.remove(player);
+		Log.d(MainActivity.tag, "Player [" + player.name
+				+ "] disconnected from [" + player.position + "]");
+		socketMap.remove(player.position);
 	}
 
 	@Override
@@ -348,8 +497,16 @@ public class GameActivity extends Activity implements OnCommunication,
 
 				sendToHost(CONSTANTS.SOCKET_SendBid + bid);
 			} else {
-				sendToHost(CONSTANTS.SOCKET_PlayCard
-						+ mHand.get(Integer.parseInt(bid)));
+				try {
+					sendToHost(CONSTANTS.SOCKET_PlayCard
+							+ mHand.get(Integer.parseInt(bid)));
+				} catch (NumberFormatException e1) {
+
+				}
+
+				catch (IndexOutOfBoundsException e2) {
+
+				}
 			}
 
 			break;

@@ -1,5 +1,6 @@
 package com.diamonds;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.TreeMap;
@@ -34,7 +35,7 @@ public class SocketServerThread extends Thread {
 				socketServerReplyThread.start();
 				id++;
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			Log.d(MainActivity.tag, "ServerSocket died.");
 		}
 	}

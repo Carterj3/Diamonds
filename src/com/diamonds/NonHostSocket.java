@@ -50,7 +50,7 @@ public class NonHostSocket extends Thread {
 					int length = convertFromBytes(lengthBuffer);
 
 					Log.d(MainActivity.tag,
-							"SocketReply ["
+							"NonHostSocket ["
 									+ this.name
 									+ "] reading:"
 									+ length
@@ -62,7 +62,12 @@ public class NonHostSocket extends Thread {
 						closeSocket();
 					}
 
-					if (length > 0) {
+					if (length > 1000) {
+						sock.getInputStream().skip(0);
+						Log.d(MainActivity.tag, "NonHostSocket  [" + this.name
+								+ "] received too much data: " + length);
+
+					} else if (length > 0) {
 						byte[] buffer = new byte[length];
 						sock.getInputStream().read(buffer);
 
@@ -127,7 +132,8 @@ public class NonHostSocket extends Thread {
 		try {
 			sock.close();
 		} catch (IOException e1) {
-			Log.e(MainActivity.tag, "NonHostSocket close [" + name + "]", e1);
+			// Log.e(MainActivity.tag, "NonHostSocket close [" + name + "]",
+			// e1);
 		}
 	}
 

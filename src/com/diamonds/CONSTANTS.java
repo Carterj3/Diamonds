@@ -13,6 +13,8 @@ public class CONSTANTS {
 	public static final String SOCKET_YourTurn = "YourTurn:";
 	public static final String SOCKET_PlayCard = "PlayCard:";
 	public static final String SOCKET_PlayedCard = "PlayedCard:";
+	public static final String SOCKET_TrickSummary = "TrickSummary:";
+	public static final String SOCKET_ScoreSummary = "ScoreSummary:";
 	
 	
 	public static final int SOCKET_Port = 8080;

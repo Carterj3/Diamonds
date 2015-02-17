@@ -79,13 +79,15 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			Bot.bot2 = new Bot("Bot 2", 2);
 			Bot.bot2.StartBot();
 
+
+
 		} else {
 			sock = new NonHostSocket(this, mIp, mUsername);
 			sock.start();
 
 			try {
 				Thread.sleep(1000);
-			} catch (Exception e) {
+			} catch (InterruptedException e) {
 			}
 		}
 	}

@@ -2,10 +2,15 @@ package org.rosehulman.edu.carterj3;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.rosehulman.edu.carterj3.CONSTANTS.Suit;
+
+import android.util.Log;
+
+import com.diamonds.MainActivity;
 
 public class GameEngine {
 
@@ -27,7 +32,7 @@ public class GameEngine {
 
 	public Boolean diamondsPlayed = false;
 	public Suit lead;
-	public TreeMap<Card, Player> pot = new TreeMap<Card, Player>();
+	public ArrayList<PlayerCardTuple> pot = new ArrayList<PlayerCardTuple>(); 
 
 	public GameEngine() {
 		this.setState(GameState.UNITIALIZED);
@@ -100,7 +105,7 @@ public class GameEngine {
 					return false;
 				}
 				// Is card out of suit and they have the suit?
-				if (pot.size() > 0 && playCardAction.card.suit != lead
+				if (pot.size() > 0 && (playCardAction.card.suit != lead)
 						&& playerHasSuit(lead, player)) {
 					// player must follow suit
 					return false;
@@ -119,15 +124,40 @@ public class GameEngine {
 				if (pot.size() > 0 && playCardAction.card.suit == Suit.Diamond) {
 					diamondsPlayed = true;
 				}
+				
+				if (getState() == GameState.TRICK_START) {
+					setState(GameState.TRICK_OCCURING);
+					this.lead = playCardAction.card.suit;
+					if(pot.size() != 0 ){
+						Log.d(MainActivity.tag, "Err, pot is not 0");
+					}
+				}
+
 				player.hand.remove(playCardAction.card);
-				pot.put(playCardAction.card, player);
+				pot.add(new PlayerCardTuple(player, playCardAction.card));
+				rotateOrder(player);
+
+				
+				String s = "";
+				for(PlayerCardTuple ct : pot){
+					s +=  " "+ct.card.toString();
+				}
+				if(pot.size() > 4){
+					Log.d(MainActivity.tag, "Err, pot is too large "+pot.size());
+				}
+				Log.d(MainActivity.tag,"GameEngine Player ["+player.name+"] played ["+playCardAction.card+"] pot ["+s+"]");
+				
 
 				// Check if trick is over
 				if (pot.size() == 4) {
 					// Determine winner
-					Set<Card> trick = pot.keySet();
+					ArrayList<Card> trick = new ArrayList<Card>();
+					for(PlayerCardTuple ct : pot){
+						trick.add(ct.card);
+					}
 					Player winner = getWinner();
 					// Give them the cards
+
 					winner.tricks.addAll(trick);
 					for (Card c : trick) {
 						winner.points += c.getPoints();
@@ -158,23 +188,28 @@ public class GameEngine {
 	}
 
 	private Player getWinner() {
-		Card highestCard = pot.firstKey();
-		Player player = pot.get(highestCard);
-		pot.remove(highestCard);
-		while (!pot.isEmpty()) {
-			Card nextCard = pot.firstKey();
-			Player nextPlayer = pot.get(nextCard);
-			pot.remove(nextCard);
-
-			// only replace current card with trump or correct suit
-			if (nextCard.suit == Suit.Diamond || nextCard.suit == lead) {
-				if (nextCard.compareTo(highestCard) >= 0) {
-					highestCard = nextCard;
-					player = nextPlayer;
+		Card highestCard = pot.get(0).card;
+		Player highestPlayer = pot.get(0).player;
+		
+		for (PlayerCardTuple ct : pot) {
+			if (highestCard.suit != Suit.Diamond || highestCard.suit != lead) {
+				highestCard = ct.card;
+				highestPlayer = ct.player;
+			} else if (highestCard.suit == Suit.Diamond) {
+				if (highestCard.compareTo(ct.card) < 0) {
+					highestCard = ct.card;
+					highestPlayer = ct.player;
+				}
+			} else if (highestCard.suit == lead) {
+				if (highestCard.compareTo(ct.card) < 0) {
+					highestCard = ct.card;
+					highestPlayer = ct.player;
 				}
 			}
 		}
-		return player;
+
+		return highestPlayer;
+
 	}
 
 	private boolean playerHasSuit(Suit suit, Player player) {
@@ -202,7 +237,7 @@ public class GameEngine {
 				// Remove two of card from their hand
 				player.hand.remove(playCardAction.card);
 				// Add it to pot
-				pot.put(playCardAction.card, player);
+				pot.add(new PlayerCardTuple(player, playCardAction.card));
 				// reorder players so that we know who is next
 				rotateOrder(player);
 				this.lead = Suit.Club;
@@ -267,7 +302,18 @@ public class GameEngine {
 					allBid = false;
 				}
 			}
+
 			if (allBid) {
+
+				Player playerWithTwoOfClubs = null;
+				for (Player p : order) {
+					if (p.hand.contains(CONSTANTS.TwoOfClubs)) {
+						playerWithTwoOfClubs = p;
+					}
+				}
+				rotateOrder(playerWithTwoOfClubs);
+				order.add(0, order.remove(3));
+
 				this.setState(GameState.ROUND_START);
 			}
 			return true;
@@ -277,6 +323,9 @@ public class GameEngine {
 
 	private boolean waitingForHandsHandler(GameAction action) {
 		if (action.getClass() == DealCardsAction.class) {
+			this.deck = new Deck();
+			this.deck.shuffle();
+			
 			int i = 0;
 			// Deal the cards
 			while (deck.hasNext()) {
@@ -294,14 +343,16 @@ public class GameEngine {
 	private boolean initializedHandler(GameAction action) {
 		if (action.getClass() == StartGameAction.class) {
 			// Generate a deck
-			this.deck = new Deck();
+			
 			this.order = new ArrayList<Player>(4);
 			order.add(player1);
 			order.add(player2);
 			order.add(player3);
 			order.add(player4);
+
 			// lets have a random start
-			Collections.shuffle(order, CONSTANTS.getSeed());
+			rotateOrder(order.get(CONSTANTS.getSeed().nextInt(4)));
+
 			this.setState(GameState.WAITING_FOR_HANDS);
 			return true;
 		}
@@ -337,6 +388,7 @@ public class GameEngine {
 	}
 
 	public GameState getState() {
+		Log.d(MainActivity.tag,"GameEngine State was "+state.toString());
 		return state;
 	}
 
