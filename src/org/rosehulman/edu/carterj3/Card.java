@@ -3,6 +3,8 @@ package org.rosehulman.edu.carterj3;
 import org.rosehulman.edu.carterj3.CONSTANTS.Suit;
 import org.rosehulman.edu.carterj3.CONSTANTS.Value;
 
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.diamonds.MainActivity;
@@ -15,11 +17,11 @@ public class Card implements Comparable<Card> {
 		this.suit = suit;
 		this.value = value;
 	}
-	
-	public Card(String s){
+
+	public Card(String s) {
 		String suit = s.split(";")[0];
 		String value = s.split(";")[1];
-		
+
 		this.suit = Suit.valueOf(suit);
 		this.value = Value.valueOf(value);
 	}
@@ -64,10 +66,72 @@ public class Card implements Comparable<Card> {
 		}
 		return 0;
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.suit.toString()+";"+this.value.toString();
+		return this.suit.toString() + ";" + this.value.toString();
 	}
 
+	private String getValueForResource() {
+		switch (this.value) {
+		case Two:
+			return "2";
+		case Three:
+			return "3";
+		case Four:
+			return "4";
+		case Five:
+			return "5";
+		case Six:
+			return "6";
+		case Seven:
+			return "7";
+		case Eight:
+			return "8";
+		case Nine:
+			return "9";
+		case Ten:
+			return "10";
+		case Jack:
+			return "jack";
+		case Queen:
+			return "queen";
+		case King:
+			return "king";
+		case Ace:
+			return "ace";
+		default:
+			Log.d(MainActivity.tag, "Err, invalid switch :: " + this.value);
+			return "";
+		}
+	}
+
+	private String getSuitForResource() {
+		switch (this.suit) {
+		case Diamond:
+			return "diamonds";
+		case Heart:
+			return "hearts";
+		case Spade:
+			return "spades";
+		case Club:
+			return "clubs";
+		default:
+			Log.d(MainActivity.tag, "Err, invalid switch :: " + this.suit);
+			return "";
+		}
+	}
+
+	public Drawable getResourceId() {
+		String name = "card_" + getValueForResource() + "_of_"
+				+ getSuitForResource() + ".png";
+		int resourceId = Resources.getSystem().getIdentifier(name, "drawable",
+				"android");
+		if (resourceId == 0) {
+			return null;
+		} else {
+			return Resources.getSystem().getDrawable(resourceId);
+		}
+
+	}
 }
