@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
-import com.diamonds.MainActivity;
 
 public class Card implements Comparable<Card> {
 	public Suit suit;
@@ -101,7 +100,7 @@ public class Card implements Comparable<Card> {
 		case Ace:
 			return "ace";
 		default:
-			Log.d(MainActivity.tag, "Err, invalid switch :: " + this.value);
+			Log.d( com.diamonds.CONSTANTS.TAG, "Err, invalid switch :: " + this.value);
 			return "";
 		}
 	}
@@ -117,7 +116,7 @@ public class Card implements Comparable<Card> {
 		case Club:
 			return "clubs";
 		default:
-			Log.d(MainActivity.tag, "Err, invalid switch :: " + this.suit);
+			Log.d(com.diamonds.CONSTANTS.TAG, "Err, invalid switch :: " + this.suit);
 			return "";
 		}
 	}

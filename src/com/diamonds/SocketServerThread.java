@@ -36,7 +36,7 @@ public class SocketServerThread extends Thread {
 				id++;
 			}
 		} catch (IOException e) {
-			Log.d(MainActivity.tag, "ServerSocket died.");
+			Log.d(CONSTANTS.TAG, "ServerSocket died.");
 		}
 	}
 

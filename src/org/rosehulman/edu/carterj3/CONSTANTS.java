@@ -8,12 +8,12 @@ public class CONSTANTS {
 	
 	public static final int PLAYER_COUNT = 4;
 	
-	public static final int POINTS_TO_WIN = 60;
+	public static final int POINTS_TO_WIN = 100;
 	public static final int POINTS_TO_LOSE = -POINTS_TO_WIN;
 	
 	public static final Card TwoOfClubs = new Card(Suit.Club,Value.Two);
 
-	public static final int POINTS_PER_ROUND = 30;
+	public static final int POINTS_PER_ROUND = 15;
 	
 	public static enum Suit{
 		Diamond,

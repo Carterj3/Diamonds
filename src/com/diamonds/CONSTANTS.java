@@ -1,6 +1,9 @@
 package com.diamonds;
 
 public class CONSTANTS {
+	
+	public static final String TAG = "Diamonds";
+	
 	public static final String SOCKET_GetUsernames = "GetUsernames";
 	public static final String SOCKET_GetUsername = "GetUsername";
 	public static final String SOCKET_SendUsername = "SendUsername:";

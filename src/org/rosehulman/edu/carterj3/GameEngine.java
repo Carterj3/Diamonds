@@ -10,7 +10,6 @@ import org.rosehulman.edu.carterj3.CONSTANTS.Suit;
 
 import android.util.Log;
 
-import com.diamonds.MainActivity;
 
 public class GameEngine {
 
@@ -32,7 +31,7 @@ public class GameEngine {
 
 	public Boolean diamondsPlayed = false;
 	public Suit lead;
-	public ArrayList<PlayerCardTuple> pot = new ArrayList<PlayerCardTuple>(); 
+	public ArrayList<PlayerCardTuple> pot = new ArrayList<PlayerCardTuple>();
 
 	public GameEngine() {
 		this.setState(GameState.UNITIALIZED);
@@ -124,12 +123,12 @@ public class GameEngine {
 				if (pot.size() > 0 && playCardAction.card.suit == Suit.Diamond) {
 					diamondsPlayed = true;
 				}
-				
+
 				if (getState() == GameState.TRICK_START) {
 					setState(GameState.TRICK_OCCURING);
 					this.lead = playCardAction.card.suit;
-					if(pot.size() != 0 ){
-						Log.d(MainActivity.tag, "Err, pot is not 0");
+					if (pot.size() != 0) {
+						Log.d(com.diamonds.CONSTANTS.TAG, "Err, pot is not 0");
 					}
 				}
 
@@ -137,22 +136,23 @@ public class GameEngine {
 				pot.add(new PlayerCardTuple(player, playCardAction.card));
 				rotateOrder(player);
 
-				
 				String s = "";
-				for(PlayerCardTuple ct : pot){
-					s +=  " "+ct.card.toString();
+				for (PlayerCardTuple ct : pot) {
+					s += " " + ct.card.toString();
 				}
-				if(pot.size() > 4){
-					Log.d(MainActivity.tag, "Err, pot is too large "+pot.size());
+				if (pot.size() > 4) {
+					Log.d(com.diamonds.CONSTANTS.TAG, "Err, pot is too large "
+							+ pot.size());
 				}
-				Log.d(MainActivity.tag,"GameEngine Player ["+player.name+"] played ["+playCardAction.card+"] pot ["+s+"]");
-				
+				Log.d(com.diamonds.CONSTANTS.TAG, "GameEngine Player ["
+						+ player.name + "] played [" + playCardAction.card
+						+ "] pot [" + s + "]");
 
 				// Check if trick is over
 				if (pot.size() == 4) {
 					// Determine winner
 					ArrayList<Card> trick = new ArrayList<Card>();
-					for(PlayerCardTuple ct : pot){
+					for (PlayerCardTuple ct : pot) {
 						trick.add(ct.card);
 					}
 					Player winner = getWinner();
@@ -190,20 +190,40 @@ public class GameEngine {
 	private Player getWinner() {
 		Card highestCard = pot.get(0).card;
 		Player highestPlayer = pot.get(0).player;
-		
+
+		Log.d(com.diamonds.CONSTANTS.TAG, "Get Winner lead : " + lead);
+
 		for (PlayerCardTuple ct : pot) {
-			if (highestCard.suit != Suit.Diamond || highestCard.suit != lead) {
+			if ((highestCard.suit != Suit.Diamond)
+					&& (highestCard.suit != lead)) {
+				Log.d(com.diamonds.CONSTANTS.TAG, "Get Winner replacing ["
+						+ highestCard + "] with [" + ct.card + "]");
 				highestCard = ct.card;
 				highestPlayer = ct.player;
+
 			} else if (highestCard.suit == Suit.Diamond) {
 				if (highestCard.compareTo(ct.card) < 0) {
+					Log.d(com.diamonds.CONSTANTS.TAG,
+							"Get Winner replacing (1) [" + highestCard
+									+ "] with [" + ct.card + "]");
 					highestCard = ct.card;
 					highestPlayer = ct.player;
+				} else {
+					Log.d(com.diamonds.CONSTANTS.TAG,
+							"Get Winner not eplacing (1) [" + highestCard
+									+ "] with [" + ct.card + "]");
 				}
 			} else if (highestCard.suit == lead) {
 				if (highestCard.compareTo(ct.card) < 0) {
+					Log.d(com.diamonds.CONSTANTS.TAG,
+							"Get Winner replacing (2) [" + highestCard
+									+ "] with [" + ct.card + "]");
 					highestCard = ct.card;
 					highestPlayer = ct.player;
+				} else {
+					Log.d(com.diamonds.CONSTANTS.TAG,
+							"Get Winner not replacing (2) [" + highestCard
+									+ "] with [" + ct.card + "]");
 				}
 			}
 		}
@@ -325,7 +345,7 @@ public class GameEngine {
 		if (action.getClass() == DealCardsAction.class) {
 			this.deck = new Deck();
 			this.deck.shuffle();
-			
+
 			int i = 0;
 			// Deal the cards
 			while (deck.hasNext()) {
@@ -343,7 +363,7 @@ public class GameEngine {
 	private boolean initializedHandler(GameAction action) {
 		if (action.getClass() == StartGameAction.class) {
 			// Generate a deck
-			
+
 			this.order = new ArrayList<Player>(4);
 			order.add(player1);
 			order.add(player2);
@@ -388,7 +408,8 @@ public class GameEngine {
 	}
 
 	public GameState getState() {
-		Log.d(MainActivity.tag,"GameEngine State was "+state.toString());
+		Log.d(com.diamonds.CONSTANTS.TAG,
+				"GameEngine State was " + state.toString());
 		return state;
 	}
 

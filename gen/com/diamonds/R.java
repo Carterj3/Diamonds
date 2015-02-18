@@ -80,7 +80,6 @@ public final class R {
         public static final int ic_launcher=0x7f020038;
     }
     public static final class id {
-        public static final int action_settings=0x7f08002a;
         public static final int button1=0x7f08000a;
         public static final int create_game_button=0x7f080028;
         public static final int game_bid_textview=0x7f080009;
@@ -118,6 +117,8 @@ public final class R {
         public static final int lobby_player2_textview=0x7f08001c;
         public static final int lobby_player3_textview=0x7f08001d;
         public static final int lobby_player4_textview=0x7f08001e;
+        public static final int menu_about=0x7f08002b;
+        public static final int menu_help=0x7f08002a;
         public static final int recieved_messages_textview=0x7f080024;
         public static final int send_message_button=0x7f080026;
         public static final int send_message_edittext=0x7f080025;
@@ -135,6 +136,7 @@ public final class R {
         public static final int main=0x7f070000;
     }
     public static final class string {
+        public static final int about=0x7f050016;
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
         public static final int create_game_text=0x7f050007;
@@ -150,10 +152,13 @@ public final class R {
         public static final int lobby_chat_button_text=0x7f05000a;
         public static final int login_button_text=0x7f050005;
         public static final int logo_description=0x7f050004;
+        public static final int menu_about_text=0x7f050014;
+        public static final int menu_help_text=0x7f050013;
         public static final int title_activity_game=0x7f05000b;
         public static final int title_activity_lobby=0x7f050009;
         public static final int title_activity_login=0x7f050003;
         public static final int title_activity_welcome=0x7f050006;
+        public static final int tutorial=0x7f050015;
     }
     public static final class style {
         /** 

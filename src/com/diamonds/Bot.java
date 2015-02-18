@@ -34,7 +34,7 @@ public class Bot implements OnCommunication {
 
 	@Override
 	public void onRecv(String msg, int id) {
-		Log.d(MainActivity.tag, "Bot [" + username + "] :: " + msg);
+		Log.d(CONSTANTS.TAG, "Bot [" + username + "] :: " + msg);
 
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
 			if ((hand != null) && (hand.size() == 0)) {

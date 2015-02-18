@@ -7,9 +7,13 @@ import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -32,10 +36,53 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	public static final String KEY_USERNAME = "USERNAME";
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_help:
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle("Tutorial");
+			alert.setMessage(R.string.tutorial);
+			alert.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+
+						}
+					});
+			alert.show();
+			return true;
+		case R.id.menu_about:
+			AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
+			alert1.setTitle("About");
+			alert1.setMessage(R.string.about);
+			alert1.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+
+						}
+					});
+			alert1.show();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
-		Log.d(MainActivity.tag, "OnDestroy L " + mUsername);
+		Log.d(CONSTANTS.TAG, "OnDestroy L " + mUsername);
 
 		for (Player p : socketMap.values()) {
 			p.socket.closeSocket();
@@ -94,7 +141,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onRecv(final String msg, final int position) {
-		Log.d(MainActivity.tag, "Lobby [" + position + "] onRecv : " + msg);
+		Log.d(CONSTANTS.TAG, "Lobby [" + position + "] onRecv : " + msg);
 
 		// Request for players
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsernames)) {
@@ -105,10 +152,10 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			String p3 = getPlayer(2);
 			String p4 = getPlayer(3);
 
-			Log.d(MainActivity.tag, CONSTANTS.SOCKET_SendUsernames + p1 + ";"
+			Log.d(CONSTANTS.TAG, CONSTANTS.SOCKET_SendUsernames + p1 + ";"
 					+ p2 + ";" + p3 + ";" + p4);
 
-			Log.d(MainActivity.tag, "GetUsernames id[" + position + "]");
+			Log.d(CONSTANTS.TAG, "GetUsernames id[" + position + "]");
 
 			sendToPlayers(CONSTANTS.SOCKET_SendUsernames + p1 + ";" + p2 + ";"
 					+ p3 + ";" + p4);
@@ -136,14 +183,14 @@ public class LobbyActivity extends Activity implements OnCommunication,
 				}
 			});
 
-			Log.d(MainActivity.tag, "recv_ " + msg);
+			Log.d(CONSTANTS.TAG, "recv_ " + msg);
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsername)) {
 			// If somebody asks for our username, send it back
 			if(!mIsHost){
 				return;
 			}
-			Log.d(MainActivity.tag, "!!! [" + mIsHost + "] [" + mUsername + "]");
+			Log.d(CONSTANTS.TAG, "!!! [" + mIsHost + "] [" + mUsername + "]");
 			socketMap.get(position).socket.send(CONSTANTS.SOCKET_SendUsername
 					+ mUsername);
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendUsername)) {
@@ -200,14 +247,14 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			});
 
 			if (msg.split(":")[1].equals("Start") && mIsHost) {
-				Log.d(MainActivity.tag, "LobbyActivity going to start game : "
+				Log.d(CONSTANTS.TAG, "LobbyActivity going to start game : "
 						+ position);
 				onRecv(CONSTANTS.SOCKET_StartGame, 0);
 			}
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)) {
 
-			Log.d(MainActivity.tag, "LobbyActivity starting game : " + position);
+			Log.d(CONSTANTS.TAG, "LobbyActivity starting game : " + position);
 
 			if (mIsHost) {
 				SocketServerThread.globalMap = this.socketMap;
@@ -236,7 +283,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			return;
 		}
 
-		Log.d(MainActivity.tag, "Lobby sendToPlayers l:" + socketMap.size());
+		Log.d(CONSTANTS.TAG, "Lobby sendToPlayers l:" + socketMap.size());
 		for (Player p : socketMap.values()) {
 			p.socket.send(msg);
 		}

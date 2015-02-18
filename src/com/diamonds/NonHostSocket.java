@@ -31,11 +31,11 @@ public class NonHostSocket extends Thread {
 		try {
 			sock = new Socket();
 			sock.connect(new InetSocketAddress(ip, CONSTANTS.SOCKET_Port));
-			Log.d(MainActivity.tag, "NonHostSocket connected");
+			Log.d(CONSTANTS.TAG, "NonHostSocket connected");
 
 			send(CONSTANTS.SOCKET_SendUsername + this.name);
 		} catch (IOException e1) {
-			Log.e(MainActivity.tag, "NonHostSocket Creation Error m [" + name
+			Log.e(CONSTANTS.TAG, "NonHostSocket Creation Error m [" + name
 					+ "]", e1);
 			closeSocket();
 		}
@@ -49,7 +49,7 @@ public class NonHostSocket extends Thread {
 					sock.getInputStream().read(lengthBuffer);
 					int length = convertFromBytes(lengthBuffer);
 
-					Log.d(MainActivity.tag,
+					Log.d(CONSTANTS.TAG,
 							"NonHostSocket ["
 									+ this.name
 									+ "] reading:"
@@ -64,7 +64,7 @@ public class NonHostSocket extends Thread {
 
 					if (length > 1000) {
 						sock.getInputStream().skip(0);
-						Log.d(MainActivity.tag, "NonHostSocket  [" + this.name
+						Log.d(CONSTANTS.TAG, "NonHostSocket  [" + this.name
 								+ "] received too much data: " + length);
 
 					} else if (length > 0) {
@@ -88,13 +88,13 @@ public class NonHostSocket extends Thread {
 						throw e;
 					}
 					tries--;
-					Log.e(MainActivity.tag, "NonHostSocket err [" + name + "]",
+					Log.e(CONSTANTS.TAG, "NonHostSocket err [" + name + "]",
 							e);
 				}
 
 			}
 		} catch (IOException | InterruptedException e) {
-			Log.e(MainActivity.tag, "A nonHostSocket Died [" + name + "]", e);
+			Log.e(CONSTANTS.TAG, "A nonHostSocket Died [" + name + "]", e);
 		}
 	}
 
@@ -108,11 +108,11 @@ public class NonHostSocket extends Thread {
 			outputStream.write(convertToBytes(message.length));
 			outputStream.write(message);
 
-			Log.d(MainActivity.tag, "NonHostSocket [" + name
+			Log.d(CONSTANTS.TAG, "NonHostSocket [" + name
 					+ "] sent a message of length [" + message.length + "]");
 
 		} catch (IOException e) {
-			Log.e(MainActivity.tag, "NonHostSocket send [" + name + "]", e);
+			Log.e(CONSTANTS.TAG, "NonHostSocket send [" + name + "]", e);
 		}
 
 	}
@@ -132,7 +132,7 @@ public class NonHostSocket extends Thread {
 		try {
 			sock.close();
 		} catch (IOException e1) {
-			// Log.e(MainActivity.tag, "NonHostSocket close [" + name + "]",
+			// Log.e(CONSTANTS.TAG, "NonHostSocket close [" + name + "]",
 			// e1);
 		}
 	}

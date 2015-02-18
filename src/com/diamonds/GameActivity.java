@@ -58,7 +58,7 @@ public class GameActivity extends Activity implements OnCommunication,
 	protected void onDestroy() {
 		super.onDestroy();
 
-		Log.d(MainActivity.tag, "OnDestroy G " + mUsername);
+		Log.d(CONSTANTS.TAG, "OnDestroy G " + mUsername);
 
 		for (Player p : socketMap.values()) {
 			if (p.socket != null) {
@@ -164,7 +164,7 @@ public class GameActivity extends Activity implements OnCommunication,
 				hand.add(new Card(s));
 			}
 		} catch (Exception e) {
-			Log.e(MainActivity.tag, "convertStringToHand " + str, e);
+			Log.e(CONSTANTS.TAG, "convertStringToHand " + str, e);
 		}
 
 		return sortHand(hand);
@@ -213,7 +213,7 @@ public class GameActivity extends Activity implements OnCommunication,
 
 	@Override
 	public void onRecv(final String msg, final int id) {
-		Log.d(MainActivity.tag, "Game [" + id + "] onRecv : " + msg);
+		Log.d(CONSTANTS.TAG, "Game [" + id + "] onRecv : " + msg);
 
 		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
 			isBid = false;
@@ -247,6 +247,9 @@ public class GameActivity extends Activity implements OnCommunication,
 
 					TextView bidView = (TextView) findViewById(R.id.game_bid_textview);
 					bidView.setText(R.string.game_no_bid_text);
+					
+					((EditText)findViewById(R.id.game_table_bid_edittext)).setVisibility(View.VISIBLE);
+					((Button)findViewById(R.id.game_table_bid_button)).setVisibility(View.VISIBLE);
 
 				}
 			});
@@ -289,6 +292,9 @@ public class GameActivity extends Activity implements OnCommunication,
 			this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+					
+					((EditText)findViewById(R.id.game_table_bid_edittext)).setVisibility(View.INVISIBLE);
+					((Button)findViewById(R.id.game_table_bid_button)).setVisibility(View.INVISIBLE);
 
 					Card c = new Card(card);
 					Drawable d = getResources().getDrawable(
@@ -336,7 +342,7 @@ public class GameActivity extends Activity implements OnCommunication,
 					sendToSocket(lead, CONSTANTS.SOCKET_YourTurn);
 
 				} catch (PlayerNotFoundException e) {
-					Log.e(MainActivity.tag, "SOCKET_PlayCard PNFE", e);
+					Log.e(CONSTANTS.TAG, "SOCKET_PlayCard PNFE", e);
 				}
 				return;
 			}
@@ -345,7 +351,7 @@ public class GameActivity extends Activity implements OnCommunication,
 				sendToSocket(p, CONSTANTS.SOCKET_SendHand
 						+ convertHandToString(engine.getPlayer(p).hand));
 			} catch (PlayerNotFoundException e) {
-				Log.e(MainActivity.tag, "SOCKET_PlayCard PNFE", e);
+				Log.e(CONSTANTS.TAG, "SOCKET_PlayCard PNFE", e);
 				return;
 			}
 
@@ -354,7 +360,7 @@ public class GameActivity extends Activity implements OnCommunication,
 
 			switch (engine.getState()) {
 			case ROUND_END:
-				Log.d(MainActivity.tag, "Round over");
+				Log.d(CONSTANTS.TAG, "Round over");
 				onRecv(CONSTANTS.SOCKET_SendChat + "Round over", 0);
 
 				StartGameAction newRound = new StartGameAction();
@@ -365,7 +371,7 @@ public class GameActivity extends Activity implements OnCommunication,
 
 				switch (engine.getState()) {
 				case GAME_OVER:
-					Log.d(MainActivity.tag, "Game over");
+					Log.d(CONSTANTS.TAG, "Game over");
 					onRecv(CONSTANTS.SOCKET_SendChat + "Game over", 0);
 					break;
 				default:
@@ -397,7 +403,7 @@ public class GameActivity extends Activity implements OnCommunication,
 			engine.HandleAction(bidAction);
 
 			if (engine.getState() == GameState.ROUND_START) {
-				Log.d(MainActivity.tag, "Everybody bid");
+				Log.d(CONSTANTS.TAG, "Everybody bid");
 				onRecv(CONSTANTS.SOCKET_SendChat + "Everybody bid", 0);
 
 				Player lead = socketMap.get(engine.order.get(0).position);
@@ -421,7 +427,7 @@ public class GameActivity extends Activity implements OnCommunication,
 			String hand_str_t = "";
 			if (msg.split(":").length > 1) {
 				hand_str_t = msg.split(":")[1];
-				Log.d(MainActivity.tag, "Hand length [" + mUsername + "] "
+				Log.d(CONSTANTS.TAG, "Hand length [" + mUsername + "] "
 						+ hand_str_t.split(" ").length);
 			}
 
@@ -530,7 +536,7 @@ public class GameActivity extends Activity implements OnCommunication,
 			return;
 		}
 
-		Log.d(MainActivity.tag, "Lobby sendToPlayers l:" + socketMap.size());
+		Log.d(CONSTANTS.TAG, "Lobby sendToPlayers l:" + socketMap.size());
 		for (Player p : socketMap.values()) {
 			if (p.position != 0) {
 				p.socket.send(msg);
@@ -567,7 +573,7 @@ public class GameActivity extends Activity implements OnCommunication,
 		if (!mIsHost) {
 			return;
 		}
-		Log.d(MainActivity.tag, "Player [" + player.name
+		Log.d(CONSTANTS.TAG, "Player [" + player.name
 				+ "] disconnected from [" + player.position + "]");
 		socketMap.remove(player.position);
 	}
@@ -599,7 +605,7 @@ public class GameActivity extends Activity implements OnCommunication,
 					.getText().toString();
 			if (isBid) {
 				setBid(bid);
-
+				
 			}
 
 			break;

@@ -29,7 +29,7 @@ public class SocketServerReplyThread extends Thread {
 			try {
 				socket.close();
 			} catch (IOException e1) {
-				Log.d(MainActivity.tag,
+				Log.d(CONSTANTS.TAG,
 						"SocketReply died : no empty slots for new player");
 			}
 		}
@@ -48,7 +48,7 @@ public class SocketServerReplyThread extends Thread {
 				sock.getInputStream().read(lengthBuffer);
 				int length = convertFromBytes(lengthBuffer);
 
-				Log.d(MainActivity.tag,
+				Log.d(CONSTANTS.TAG,
 						"SocketReply ["
 								+ id
 								+ "] reading:"
@@ -74,13 +74,13 @@ public class SocketServerReplyThread extends Thread {
 				}
 
 				if (!sock.isConnected()) {
-					Log.d(MainActivity.tag, "SocketReply notConnected : "
+					Log.d(CONSTANTS.TAG, "SocketReply notConnected : "
 							+ player.name);
 					closeSocket();
 				}
 			}
 		} catch (IOException | InterruptedException e) {
-			Log.d(MainActivity.tag, "SocketReply died :" + e.getMessage());
+			Log.d(CONSTANTS.TAG, "SocketReply died :" + e.getMessage());
 			closeSocket();
 		}
 
@@ -96,11 +96,11 @@ public class SocketServerReplyThread extends Thread {
 			outputStream.write(convertToBytes(message.length));
 			outputStream.write(message);
 
-			Log.d(MainActivity.tag, "SocketReply [" + id
+			Log.d(CONSTANTS.TAG, "SocketReply [" + id
 					+ "] sent a message of length [" + message.length + "]");
 
 		} catch (IOException e) {
-			Log.d(MainActivity.tag, "PrintStream error e: " + e.getMessage());
+			Log.d(CONSTANTS.TAG, "PrintStream error e: " + e.getMessage());
 		}
 
 	}

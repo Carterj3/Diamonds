@@ -35,7 +35,7 @@ public class Player implements Comparable<Player> {
 		}
 		// in reality should do some ID magic
 		if(obj.getClass() == Player.class){
-			return socketID == (((Player)obj).socketID);
+			return (compareTo((Player)obj)==0);
 		}
 		return super.equals(obj);
 	}
