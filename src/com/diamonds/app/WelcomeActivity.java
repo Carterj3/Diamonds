@@ -37,6 +37,11 @@ public class WelcomeActivity extends Activity implements OnClickListener,
 	public static final String KEY_IP = "IP";
 	public static final String KEY_ISHOST = "ISHOST";
 	public static final String KEY_ISPUBLIC = "ISPUBLIC";
+	
+	public static final String KEY_Player1 = "";
+	public static final String KEY_Player2 = "";
+	public static final String KEY_Player3 = "";
+	public static final String KEY_Player4 = "";
 
 	private ListView mListView;
 	private ArrayAdapter adapter;

@@ -27,5 +27,7 @@
     <string name="create_private_game">Create Private Game</string>
     <string name="create_public_game">Create Public Game</string>
     <string name="join_private_game">Join Private Game</string>
+    <string name="lobby_kick_player_text">X</string>
+    <string name="lobby_add_bot">+</string>
 
 </resources>

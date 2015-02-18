@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:isScrollContainer="false"
     android:orientation="vertical"
     tools:context="${relativePackage}.${activityClass}" >
 
@@ -88,6 +89,40 @@
                 android:orientation="horizontal" >
             </LinearLayout>
         </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/game_table_player3_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/game_table_player_hand_scrollview"
+            android:layout_alignLeft="@+id/game_table_player2_card_imageview"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/game_table_player4_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/game_table_player4_card_imageview"
+            android:layout_toLeftOf="@+id/game_table_player4_card_imageview"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/game_table_player1_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/game_table_player1_card_imageview"
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@+id/game_table_bid_edittext"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/game_table_player2_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/game_table_player4_name_textview"
+            android:layout_toRightOf="@+id/game_table_player2_card_imageview"
+            android:text="TextView" />
+
     </RelativeLayout>
 
     <LinearLayout

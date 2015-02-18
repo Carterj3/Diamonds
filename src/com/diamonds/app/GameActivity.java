@@ -87,6 +87,25 @@ public class GameActivity extends Activity implements OnCommunication,
 		chatOutput = ((TextView) findViewById(R.id.game_chat_textview));
 		chatInput = ((EditText) findViewById(R.id.game_chat_edittext));
 
+		String p1 = data.getStringExtra(WelcomeActivity.KEY_Player1);
+		String p2 = data.getStringExtra(WelcomeActivity.KEY_Player2);
+		String p3 = data.getStringExtra(WelcomeActivity.KEY_Player3);
+		String p4 = data.getStringExtra(WelcomeActivity.KEY_Player4);
+
+		((TextView) findViewById(R.id.game_table_player1_name_textview))
+				.setText(p1);
+		((TextView) findViewById(R.id.game_table_player2_name_textview))
+				.setText(p2);
+		((TextView) findViewById(R.id.game_table_player3_name_textview))
+				.setText(p3);
+		((TextView) findViewById(R.id.game_table_player4_name_textview))
+				.setText(p4);
+
+		((TextView) findViewById(R.id.game_player1_name_textview)).setText(p1);
+		((TextView) findViewById(R.id.game_player2_name_textview)).setText(p2);
+		((TextView) findViewById(R.id.game_player3_name_textview)).setText(p3);
+		((TextView) findViewById(R.id.game_player4_name_textview)).setText(p4);
+
 		((Button) findViewById(R.id.game_chat_button)).setOnClickListener(this);
 		((Button) findViewById(R.id.game_table_bid_button))
 				.setOnClickListener(this);
@@ -109,9 +128,9 @@ public class GameActivity extends Activity implements OnCommunication,
 
 			socketMap.put(0, new Player(mUsername, 0));
 
-			Player p1 = socketMap.get(0);
+			Player player1 = socketMap.get(0);
 
-			InitGameAction initGame = new InitGameAction(p1, 0);
+			InitGameAction initGame = new InitGameAction(player1, 0);
 			engine.HandleAction(initGame);
 
 			sendToPlayers(CONSTANTS.SOCKET_StartGame);
@@ -194,16 +213,16 @@ public class GameActivity extends Activity implements OnCommunication,
 				break;
 			}
 		}
-		
+
 		Collections.sort(hearts);
 		Collections.sort(diamonds);
 		Collections.sort(clubs);
 		Collections.sort(spades);
-		
+
 		clubs.addAll(hearts);
 		clubs.addAll(spades);
 		clubs.addAll(diamonds);
-		
+
 		return clubs;
 
 	}
@@ -249,9 +268,11 @@ public class GameActivity extends Activity implements OnCommunication,
 
 					TextView bidView = (TextView) findViewById(R.id.game_bid_textview);
 					bidView.setText(R.string.game_no_bid_text);
-					
-					((EditText)findViewById(R.id.game_table_bid_edittext)).setVisibility(View.VISIBLE);
-					((Button)findViewById(R.id.game_table_bid_button)).setVisibility(View.VISIBLE);
+
+					((EditText) findViewById(R.id.game_table_bid_edittext))
+							.setVisibility(View.VISIBLE);
+					((Button) findViewById(R.id.game_table_bid_button))
+							.setVisibility(View.VISIBLE);
 
 				}
 			});
@@ -294,9 +315,11 @@ public class GameActivity extends Activity implements OnCommunication,
 			this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					
-					((EditText)findViewById(R.id.game_table_bid_edittext)).setVisibility(View.INVISIBLE);
-					((Button)findViewById(R.id.game_table_bid_button)).setVisibility(View.INVISIBLE);
+
+					((EditText) findViewById(R.id.game_table_bid_edittext))
+							.setVisibility(View.INVISIBLE);
+					((Button) findViewById(R.id.game_table_bid_button))
+							.setVisibility(View.INVISIBLE);
 
 					Card c = new Card(card);
 					Drawable d = getResources().getDrawable(
@@ -481,9 +504,17 @@ public class GameActivity extends Activity implements OnCommunication,
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
-			sendToPlayers(msg);
-			String message = "\n" + msg.split(":")[1];
-			addChatMessage(message);
+			
+
+			if (msg.split(":")[1].equals("")) {
+				return;
+			}
+
+			String name = socketMap.get(id).name;
+			String message = name + " " + msg.split(":")[1];
+
+			sendToPlayers(CONSTANTS.SOCKET_SendChat + message);
+			addChatMessage("\n" + message);
 
 		}
 
@@ -575,8 +606,8 @@ public class GameActivity extends Activity implements OnCommunication,
 		if (!mIsHost) {
 			return;
 		}
-		Log.d(CONSTANTS.TAG, "Player [" + player.name
-				+ "] disconnected from [" + player.position + "]");
+		Log.d(CONSTANTS.TAG, "Player [" + player.name + "] disconnected from ["
+				+ player.position + "]");
 		socketMap.remove(player.position);
 	}
 
@@ -607,7 +638,7 @@ public class GameActivity extends Activity implements OnCommunication,
 					.getText().toString();
 			if (isBid) {
 				setBid(bid);
-				
+
 			}
 
 			break;

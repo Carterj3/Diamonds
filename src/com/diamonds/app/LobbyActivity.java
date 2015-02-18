@@ -141,21 +141,29 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			availableSlots.add(new Player("Player 3", 2));
 			availableSlots.add(new Player("Player 2", 1));
 
-			Bot.bot1 = new Bot("Bot 1", 1);
-			Bot.bot1.StartBot();
-
-			Bot.bot2 = new Bot("Bot 2", 2);
-			Bot.bot2.StartBot();
-
 			if (mIsPublic) {
 				Game newGame = new Game();
 				newGame.setName(mUsername + "'s Game!");
 				new InsertGameTask().execute(newGame);
 			}
 
+			((Button) findViewById(R.id.lobby_player2_action_button))
+					.setOnClickListener(this);
+			((Button) findViewById(R.id.lobby_player3_action_button))
+					.setOnClickListener(this);
+			((Button) findViewById(R.id.lobby_player4_action_button))
+					.setOnClickListener(this);
+
 		} else {
 			sock = new NonHostSocket(this, mIp, mUsername);
 			sock.start();
+
+			((Button) findViewById(R.id.lobby_player2_action_button))
+					.setVisibility(View.INVISIBLE);
+			((Button) findViewById(R.id.lobby_player3_action_button))
+					.setVisibility(View.INVISIBLE);
+			((Button) findViewById(R.id.lobby_player4_action_button))
+					.setVisibility(View.INVISIBLE);
 
 			try {
 				Thread.sleep(1000);
@@ -255,27 +263,17 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
-			sendToPlayers(msg);
 
 			if (msg.split(":")[1].equals("")) {
 				return;
 			}
 
-			this.runOnUiThread(new Runnable() {
+			String name = getPlayer(position);
+			final String message = name + " " + msg.split(":")[1];
 
-				@Override
-				public void run() {
-					chatOutput.setText(chatOutput.getText().toString() + "\n"
-							+ msg.split(":")[1]);
+			sendToPlayers(CONSTANTS.SOCKET_SendChat + message);
 
-				}
-			});
-
-			if (msg.split(":")[1].equals("Start") && mIsHost) {
-				Log.d(CONSTANTS.TAG, "LobbyActivity going to start game : "
-						+ position);
-				onRecv(CONSTANTS.SOCKET_StartGame, 0);
-			}
+			addChatMessage("\n" + message);
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)) {
 
@@ -298,7 +296,22 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 	}
 
+	private void addChatMessage(final String message) {
+		this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				chatOutput.setText(chatOutput.getText().toString() + message);
+
+			}
+		});
+	}
+
 	private String getPlayer(int i) {
+		if (i == 0) {
+			return mUsername;
+		}
+
 		Player p = socketMap.get(i);
 		if (p == null) {
 			return "Player " + i;
@@ -341,16 +354,79 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		socketMap.put(newPlayer.position, newPlayer);
 		newSocket.send(CONSTANTS.SOCKET_GetUsername);
 
+		if (availableSlots.size() == 0) {
+			(new StartGameTask()).execute();
+		}
+
+		changeToKickPlayer(newPlayer.position);
+
 		return newPlayer;
+
+	}
+
+	private void changeToKickPlayer(final int position) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				switch (position) {
+				case 1:
+					((Button) findViewById(R.id.lobby_player2_action_button))
+							.setText(R.string.lobby_kick_player_text);
+					return;
+				case 2:
+					((Button) findViewById(R.id.lobby_player3_action_button))
+							.setText(R.string.lobby_kick_player_text);
+					return;
+				case 3:
+					((Button) findViewById(R.id.lobby_player4_action_button))
+							.setText(R.string.lobby_kick_player_text);
+					return;
+				}
+			}
+		});
 
 	}
 
 	@Override
 	public void onClick(View v) {
-		String newChat = chatInput.getText().toString();
-		chatInput.setText("");
+		String text;
+		switch (v.getId()) {
+		case R.id.lobby_chat_button:
+			String newChat = chatInput.getText().toString();
+			chatInput.setText("");
 
-		sendToHost(CONSTANTS.SOCKET_SendChat + newChat);
+			sendToHost(CONSTANTS.SOCKET_SendChat + newChat);
+			return;
+		case R.id.lobby_player2_action_button:
+			text = ((Button) findViewById(R.id.lobby_player2_action_button))
+					.getText().toString();
+			if (text.equals(getString(R.string.lobby_kick_player_text))) {
+				socketMap.get(1).socket.closeSocket();
+			} else {
+				(new Bot("Bot")).StartBot();
+			}
+			return;
+		case R.id.lobby_player3_action_button:
+			text = ((Button) findViewById(R.id.lobby_player3_action_button))
+					.getText().toString();
+			if (text.equals(getString(R.string.lobby_kick_player_text))) {
+				socketMap.get(2).socket.closeSocket();
+			} else {
+				(new Bot("Bot")).StartBot();
+			}
+			return;
+		case R.id.lobby_player4_action_button:
+			text = ((Button) findViewById(R.id.lobby_player4_action_button))
+					.getText().toString();
+			if (text.equals(getString(R.string.lobby_kick_player_text))) {
+				socketMap.get(3).socket.closeSocket();
+			} else {
+				(new Bot("Bot")).StartBot();
+			}
+			return;
+		}
+
 	}
 
 	@Override
@@ -362,10 +438,78 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			return;
 		}
 
+		final int position = player.position;
+		boolean found = false;
 		socketMap.remove(player.position);
-		availableSlots.add(new Player("Player " + (player.position + 1),
-				player.position));
+		for (Player p : availableSlots) {
+			if (p.position == position) {
+				found = true;
+			}
+		}
+		if (!found) {
+			availableSlots.add(new Player("Player " + (player.position + 1),
+					player.position));
+		}
+
+		onRecv(CONSTANTS.SOCKET_GetUsernames, 0);
+
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				switch (position) {
+				case 1:
+					((TextView) findViewById(R.id.lobby_player2_textview))
+							.setText("Player 2");
+					((Button) findViewById(R.id.lobby_player2_action_button))
+							.setText(R.string.lobby_add_bot);
+					return;
+				case 2:
+					((TextView) findViewById(R.id.lobby_player3_textview))
+							.setText("Player 3");
+					((Button) findViewById(R.id.lobby_player3_action_button))
+							.setText(R.string.lobby_add_bot);
+					return;
+				case 3:
+					((TextView) findViewById(R.id.lobby_player4_textview))
+							.setText("Player 4");
+					((Button) findViewById(R.id.lobby_player4_action_button))
+							.setText(R.string.lobby_add_bot);
+					return;
+				}
+			}
+		});
+
 		player = null;
+	}
+
+	class StartGameTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			for (int i = 5; i > 0; i--) {
+				if (availableSlots.size() == 0) {
+					return null;
+				}
+				sendToHost(CONSTANTS.SOCKET_SendChat
+						+ String.format("Game starting in %d ...", i));
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			if (availableSlots.size() == 0) {
+				onRecv(CONSTANTS.SOCKET_StartGame, 0);
+			}
+		}
+
 	}
 
 	class InsertGameTask extends AsyncTask<Game, Void, Game> {

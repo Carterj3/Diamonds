@@ -2,39 +2,101 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:isScrollContainer="false"
     tools:context="${relativePackage}.${activityClass}" >
 
-    <TextView
-        android:id="@+id/lobby_player1_textview"
+    <LinearLayout
+        android:id="@+id/lobby_player1_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/imageView1"
-        android:text="Player 1" />
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/lobby_player2_textview"
+        <TextView
+            android:id="@+id/lobby_player1_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Player 1" />
+
+        <Button
+            android:id="@+id/lobby_player1_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/lobby_add_bot"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lobby_player2_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/lobby_player1_textview"
-        android:text="Player 2" />
+        android:layout_below="@+id/lobby_player1_layout"
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/lobby_player3_textview"
+        <TextView
+            android:id="@+id/lobby_player2_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Player 2" />
+
+        <Button
+            android:id="@+id/lobby_player2_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/lobby_add_bot" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lobby_player3_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/lobby_player2_textview"
-        android:text="Player 3" />
+        android:layout_below="@+id/lobby_player2_layout"
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/lobby_player4_textview"
+        <TextView
+            android:id="@+id/lobby_player3_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Player 3" />
+
+        <Button
+            android:id="@+id/lobby_player3_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/lobby_add_bot" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lobby_player4_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/lobby_player3_textview"
-        android:text="Player 4" />
+        android:layout_below="@+id/lobby_player3_layout"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/lobby_player4_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Player 4" />
+
+        <Button
+            android:id="@+id/lobby_player4_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/lobby_add_bot" />
+    </LinearLayout>
 
     <EditText
         android:id="@+id/lobby_chat_input_textview"
@@ -69,8 +131,8 @@
         android:id="@+id/scrollView1"
         android:layout_width="fill_parent"
         android:layout_height="150dp"
-        android:layout_alignTop="@id/lobby_player1_textview"
-        android:layout_toRightOf="@id/lobby_player1_textview"
+        android:layout_alignTop="@id/lobby_player1_layout"
+        android:layout_toRightOf="@id/lobby_player1_layout"
         android:fillViewport="true"
         android:scrollbars="vertical" >
 

@@ -11,20 +11,14 @@ import android.util.Log;
 
 public class Bot implements OnCommunication {
 
-	public static Bot bot1 = null;
-	public static Bot bot2 = null;
-	public static Bot bot3 = null;
-
 	NonHostSocket sock;
 	private String username;
 
-	private int position;
-
 	private ArrayList<Card> hand;
 
-	public Bot(String username, int position) {
+	public Bot(String username) {
 		this.username = username;
-		this.position = position;
+
 	}
 
 	public void StartBot() {
@@ -59,7 +53,7 @@ public class Bot implements OnCommunication {
 				this.hand = GameActivity.convertStringToHand(msg.split(":")[1]);
 			}
 
-			sock.send(CONSTANTS.SOCKET_SendBid + (40 + position));
+			sock.send(CONSTANTS.SOCKET_SendBid + 20);
 		}
 	}
 
