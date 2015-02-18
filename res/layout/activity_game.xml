@@ -104,7 +104,7 @@
             android:text="@string/game_no_bid_text" />
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/lobby_send_game_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

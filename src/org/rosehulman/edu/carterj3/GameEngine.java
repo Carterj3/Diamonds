@@ -128,7 +128,7 @@ public class GameEngine {
 					setState(GameState.TRICK_OCCURING);
 					this.lead = playCardAction.card.suit;
 					if (pot.size() != 0) {
-						Log.d(com.diamonds.CONSTANTS.TAG, "Err, pot is not 0");
+						Log.d(com.diamonds.app.CONSTANTS.TAG, "Err, pot is not 0");
 					}
 				}
 
@@ -141,10 +141,10 @@ public class GameEngine {
 					s += " " + ct.card.toString();
 				}
 				if (pot.size() > 4) {
-					Log.d(com.diamonds.CONSTANTS.TAG, "Err, pot is too large "
+					Log.d(com.diamonds.app.CONSTANTS.TAG, "Err, pot is too large "
 							+ pot.size());
 				}
-				Log.d(com.diamonds.CONSTANTS.TAG, "GameEngine Player ["
+				Log.d(com.diamonds.app.CONSTANTS.TAG, "GameEngine Player ["
 						+ player.name + "] played [" + playCardAction.card
 						+ "] pot [" + s + "]");
 
@@ -191,37 +191,37 @@ public class GameEngine {
 		Card highestCard = pot.get(0).card;
 		Player highestPlayer = pot.get(0).player;
 
-		Log.d(com.diamonds.CONSTANTS.TAG, "Get Winner lead : " + lead);
+		Log.d(com.diamonds.app.CONSTANTS.TAG, "Get Winner lead : " + lead);
 
 		for (PlayerCardTuple ct : pot) {
 			if ((highestCard.suit != Suit.Diamond)
 					&& (highestCard.suit != lead)) {
-				Log.d(com.diamonds.CONSTANTS.TAG, "Get Winner replacing ["
+				Log.d(com.diamonds.app.CONSTANTS.TAG, "Get Winner replacing ["
 						+ highestCard + "] with [" + ct.card + "]");
 				highestCard = ct.card;
 				highestPlayer = ct.player;
 
 			} else if (highestCard.suit == Suit.Diamond) {
 				if (highestCard.compareTo(ct.card) < 0) {
-					Log.d(com.diamonds.CONSTANTS.TAG,
+					Log.d(com.diamonds.app.CONSTANTS.TAG,
 							"Get Winner replacing (1) [" + highestCard
 									+ "] with [" + ct.card + "]");
 					highestCard = ct.card;
 					highestPlayer = ct.player;
 				} else {
-					Log.d(com.diamonds.CONSTANTS.TAG,
+					Log.d(com.diamonds.app.CONSTANTS.TAG,
 							"Get Winner not eplacing (1) [" + highestCard
 									+ "] with [" + ct.card + "]");
 				}
 			} else if (highestCard.suit == lead) {
 				if (highestCard.compareTo(ct.card) < 0) {
-					Log.d(com.diamonds.CONSTANTS.TAG,
+					Log.d(com.diamonds.app.CONSTANTS.TAG,
 							"Get Winner replacing (2) [" + highestCard
 									+ "] with [" + ct.card + "]");
 					highestCard = ct.card;
 					highestPlayer = ct.player;
 				} else {
-					Log.d(com.diamonds.CONSTANTS.TAG,
+					Log.d(com.diamonds.app.CONSTANTS.TAG,
 							"Get Winner not replacing (2) [" + highestCard
 									+ "] with [" + ct.card + "]");
 				}
@@ -408,7 +408,7 @@ public class GameEngine {
 	}
 
 	public GameState getState() {
-		Log.d(com.diamonds.CONSTANTS.TAG,
+		Log.d(com.diamonds.app.CONSTANTS.TAG,
 				"GameEngine State was " + state.toString());
 		return state;
 	}

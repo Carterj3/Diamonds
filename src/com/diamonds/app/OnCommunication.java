@@ -1,4 +1,4 @@
-package com.diamonds;
+package com.diamonds.app;
 
 import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;

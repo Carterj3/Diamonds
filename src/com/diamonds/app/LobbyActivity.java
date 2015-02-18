@@ -1,15 +1,23 @@
-package com.diamonds;
+package com.diamonds.app;
 
+import java.io.IOException;
 import java.util.Stack;
 import java.util.TreeMap;
 
 import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;
 
+import com.appspot.diamonds_app.diamonds.Diamonds;
+import com.appspot.diamonds_app.diamonds.model.Game;
+import com.diamonds.R;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.json.gson.GsonFactory;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +38,9 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	private TreeMap<Integer, Player> socketMap = new TreeMap<Integer, Player>();
 	private Stack<Player> availableSlots = new Stack<Player>();
 	private NonHostSocket sock;
+	private boolean mIsPublic;
+	private Diamonds mService;
+	private Game currentGame;
 
 	public static final String KEY_ISHOST = "ISHOST";
 	public static final String KEY_IP = "IP";
@@ -77,7 +88,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -91,6 +102,10 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		if (sock != null) {
 			sock.closeSocket();
 		}
+
+		if (mIsHost && mIsPublic && (currentGame != null)) {
+			(new DeleteGameTask()).execute(currentGame);
+		}
 	}
 
 	@Override
@@ -102,12 +117,18 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		mUsername = data.getStringExtra(LoginActivity.KEY_USERNAME);
 		mIp = data.getStringExtra(WelcomeActivity.KEY_IP);
 		mIsHost = data.getBooleanExtra(WelcomeActivity.KEY_ISHOST, false);
+		mIsPublic = data.getBooleanExtra(WelcomeActivity.KEY_ISPUBLIC, false);
 
 		chatOutput = ((TextView) findViewById(R.id.lobby_chat_output_textview));
 		chatInput = ((TextView) findViewById(R.id.lobby_chat_input_textview));
 
 		((Button) findViewById(R.id.lobby_chat_button))
 				.setOnClickListener(this);
+
+		Diamonds.Builder builder = new Diamonds.Builder(
+				AndroidHttp.newCompatibleTransport(), new GsonFactory(), null);
+		builder.setApplicationName("Diamonds-App");
+		mService = builder.build();
 
 		if (mIsHost) {
 			Thread socketServerThread = new Thread(new SocketServerThread(this));
@@ -126,7 +147,11 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			Bot.bot2 = new Bot("Bot 2", 2);
 			Bot.bot2.StartBot();
 
-
+			if (mIsPublic) {
+				Game newGame = new Game();
+				newGame.setName(mUsername + "'s Game!");
+				new InsertGameTask().execute(newGame);
+			}
 
 		} else {
 			sock = new NonHostSocket(this, mIp, mUsername);
@@ -152,8 +177,8 @@ public class LobbyActivity extends Activity implements OnCommunication,
 			String p3 = getPlayer(2);
 			String p4 = getPlayer(3);
 
-			Log.d(CONSTANTS.TAG, CONSTANTS.SOCKET_SendUsernames + p1 + ";"
-					+ p2 + ";" + p3 + ";" + p4);
+			Log.d(CONSTANTS.TAG, CONSTANTS.SOCKET_SendUsernames + p1 + ";" + p2
+					+ ";" + p3 + ";" + p4);
 
 			Log.d(CONSTANTS.TAG, "GetUsernames id[" + position + "]");
 
@@ -187,7 +212,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GetUsername)) {
 			// If somebody asks for our username, send it back
-			if(!mIsHost){
+			if (!mIsHost) {
 				return;
 			}
 			Log.d(CONSTANTS.TAG, "!!! [" + mIsHost + "] [" + mUsername + "]");
@@ -258,6 +283,10 @@ public class LobbyActivity extends Activity implements OnCommunication,
 
 			if (mIsHost) {
 				SocketServerThread.globalMap = this.socketMap;
+
+			}
+			if (mIsHost && mIsPublic && (currentGame != null)) {
+				(new DeleteGameTask()).execute(currentGame);
 			}
 
 			Intent game = new Intent(LobbyActivity.this, GameActivity.class);
@@ -339,4 +368,39 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		player = null;
 	}
 
+	class InsertGameTask extends AsyncTask<Game, Void, Game> {
+
+		@Override
+		protected Game doInBackground(Game... params) {
+			Game returnedGame = null;
+			try {
+				returnedGame = mService.game().insert(params[0]).execute();
+			} catch (IOException e) {
+				Log.e(CONSTANTS.TAG, "Lobby Insert failed.", e);
+			}
+			return returnedGame;
+		}
+
+		@Override
+		protected void onPostExecute(Game result) {
+			super.onPostExecute(result);
+
+			currentGame = result;
+		}
+
+	}
+
+	class DeleteGameTask extends AsyncTask<Game, Void, Game> {
+		@Override
+		protected Game doInBackground(Game... params) {
+			Game returnedGame = null;
+			try {
+				returnedGame = mService.game().delete(params[0].getEntityKey())
+						.execute();
+			} catch (IOException e) {
+				Log.e(CONSTANTS.TAG, "Lobby Delete failed.", e);
+			}
+			return returnedGame;
+		}
+	}
 }

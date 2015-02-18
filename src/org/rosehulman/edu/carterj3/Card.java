@@ -100,7 +100,7 @@ public class Card implements Comparable<Card> {
 		case Ace:
 			return "ace";
 		default:
-			Log.d( com.diamonds.CONSTANTS.TAG, "Err, invalid switch :: " + this.value);
+			Log.d( com.diamonds.app.CONSTANTS.TAG, "Err, invalid switch :: " + this.value);
 			return "";
 		}
 	}
@@ -116,7 +116,7 @@ public class Card implements Comparable<Card> {
 		case Club:
 			return "clubs";
 		default:
-			Log.d(com.diamonds.CONSTANTS.TAG, "Err, invalid switch :: " + this.suit);
+			Log.d(com.diamonds.app.CONSTANTS.TAG, "Err, invalid switch :: " + this.suit);
 			return "";
 		}
 	}

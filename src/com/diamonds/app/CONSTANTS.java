@@ -1,4 +1,4 @@
-package com.diamonds;
+package com.diamonds.app;
 
 public class CONSTANTS {
 	

@@ -10,35 +10,69 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
         android:contentDescription="@string/logo_description"
         android:src="@drawable/diamonds" />
 
-    <EditText
-        android:id="@+id/join_game_edittext"
+    <Button
+        android:id="@+id/create_public_game_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/create_game_button"
-        android:ems="10"
-        android:text="137.112.230.170" >
-
-    </EditText>
-
-    <Button
-        android:id="@+id/create_game_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_below="@+id/imageView1"
-        android:layout_centerHorizontal="true"
-        android:text="@string/create_game_text" />
+        android:text="@string/create_public_game"
+        android:textSize="14dp" />
 
     <Button
-        android:id="@+id/join_game_button"
+        android:id="@+id/create_private_game_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/join_game_edittext"
-        android:layout_toRightOf="@+id/join_game_edittext"
-        android:text="@string/join_game_text" />
+        android:layout_alignTop="@id/create_public_game_button"
+        android:layout_marginLeft="14dp"
+        android:layout_toRightOf="@id/create_public_game_button"
+        android:text="@string/create_private_game"
+        android:textSize="14dp" />
+
+    <LinearLayout
+        android:id="@+id/welcome_join_games_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/create_public_game_button"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/join_game_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:text="137.112.230.170"
+            android:textSize="14dp" >
+        </EditText>
+
+        <Button
+            android:id="@+id/join_game_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/join_private_game"
+            android:textSize="14dp" />
+
+        <Button
+            android:id="@+id/lobby_refresh_public_games"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Refresh Public Games"
+            android:textSize="14dp" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lobby_public_game_listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/welcome_join_games_layout" >
+    </ListView>
 
 </RelativeLayout>

@@ -80,8 +80,8 @@ public final class R {
         public static final int ic_launcher=0x7f020038;
     }
     public static final class id {
-        public static final int button1=0x7f08000a;
-        public static final int create_game_button=0x7f080028;
+        public static final int create_private_game_button=0x7f080029;
+        public static final int create_public_game_button=0x7f080028;
         public static final int game_bid_textview=0x7f080009;
         public static final int game_chat_button=0x7f080019;
         public static final int game_chat_edittext=0x7f080018;
@@ -107,23 +107,28 @@ public final class R {
         public static final int game_table_player4_card_imageview=0x7f080003;
         public static final int game_table_player_hand_layout=0x7f080008;
         public static final int game_table_player_hand_scrollview=0x7f080005;
-        public static final int imageView1=0x7f08001a;
-        public static final int join_game_button=0x7f080029;
-        public static final int join_game_edittext=0x7f080027;
+        public static final int imageView1=0x7f08001b;
+        public static final int join_game_button=0x7f08002c;
+        public static final int join_game_edittext=0x7f08002b;
         public static final int lobby_chat_button=0x7f080020;
         public static final int lobby_chat_input_textview=0x7f08001f;
-        public static final int lobby_chat_output_textview=0x7f080021;
-        public static final int lobby_player1_textview=0x7f08001b;
+        public static final int lobby_chat_output_textview=0x7f080022;
+        public static final int lobby_player1_textview=0x7f08001a;
         public static final int lobby_player2_textview=0x7f08001c;
         public static final int lobby_player3_textview=0x7f08001d;
         public static final int lobby_player4_textview=0x7f08001e;
-        public static final int menu_about=0x7f08002b;
-        public static final int menu_help=0x7f08002a;
-        public static final int recieved_messages_textview=0x7f080024;
-        public static final int send_message_button=0x7f080026;
-        public static final int send_message_edittext=0x7f080025;
-        public static final int username_button=0x7f080023;
-        public static final int username_edittext=0x7f080022;
+        public static final int lobby_public_game_listview=0x7f08002e;
+        public static final int lobby_refresh_public_games=0x7f08002d;
+        public static final int lobby_send_game_button=0x7f08000a;
+        public static final int menu_about=0x7f080030;
+        public static final int menu_help=0x7f08002f;
+        public static final int recieved_messages_textview=0x7f080025;
+        public static final int scrollView1=0x7f080021;
+        public static final int send_message_button=0x7f080027;
+        public static final int send_message_edittext=0x7f080026;
+        public static final int username_button=0x7f080024;
+        public static final int username_edittext=0x7f080023;
+        public static final int welcome_join_games_layout=0x7f08002a;
     }
     public static final class layout {
         public static final int activity_game=0x7f030000;
@@ -140,6 +145,8 @@ public final class R {
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
         public static final int create_game_text=0x7f050007;
+        public static final int create_private_game=0x7f050017;
+        public static final int create_public_game=0x7f050018;
         public static final int game_bid_text=0x7f050010;
         public static final int game_card_back_text=0x7f050012;
         public static final int game_chat_button_label=0x7f05000f;
@@ -149,6 +156,7 @@ public final class R {
         public static final int game_score_label=0x7f05000d;
         public static final int hello_world=0x7f050002;
         public static final int join_game_text=0x7f050008;
+        public static final int join_private_game=0x7f050019;
         public static final int lobby_chat_button_text=0x7f05000a;
         public static final int login_button_text=0x7f050005;
         public static final int logo_description=0x7f050004;

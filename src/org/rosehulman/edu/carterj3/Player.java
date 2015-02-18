@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.rosehulman.edu.carterj3.Card;
 
-import com.diamonds.SocketServerReplyThread;
+import com.diamonds.app.SocketServerReplyThread;
 
 public class Player implements Comparable<Player> {
 	public String name;

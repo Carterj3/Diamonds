@@ -1,4 +1,4 @@
-package com.diamonds;
+package com.diamonds.app;
 
 import java.io.IOException;
 import java.net.ServerSocket;

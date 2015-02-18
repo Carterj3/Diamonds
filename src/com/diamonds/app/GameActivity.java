@@ -1,4 +1,4 @@
-package com.diamonds;
+package com.diamonds.app;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +14,8 @@ import org.rosehulman.edu.carterj3.PlayCardAction;
 import org.rosehulman.edu.carterj3.Player;
 import org.rosehulman.edu.carterj3.PlayerNotFoundException;
 import org.rosehulman.edu.carterj3.StartGameAction;
+
+import com.diamonds.R;
 
 import android.app.Activity;
 import android.content.Intent;
