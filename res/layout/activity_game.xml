@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="${relativePackage}.${activityClass}"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:context="${relativePackage}.${activityClass}" >
 
     <RelativeLayout
         android:id="@+id/game_table_layout"
@@ -11,22 +11,43 @@
         android:layout_height="wrap_content"
         android:layout_weight="5" >
 
-        <TextView
-            android:id="@+id/game_table_player1_card_textview"
+        <ImageView
+            android:id="@+id/game_table_player1_card_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="18dp"
-            android:text="Small Text"
+            android:contentDescription="@string/game_card_back_text"
+            android:src="@drawable/card_back"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <ImageView
+            android:id="@+id/game_table_player2_card_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/game_table_player1_card_imageview"
+            android:layout_toRightOf="@+id/game_table_player1_card_imageview"
+            android:contentDescription="@string/game_card_back_text"
+            android:src="@drawable/card_back"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <ImageView
+            android:id="@+id/game_table_player4_card_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/game_table_player1_card_imageview"
+            android:layout_toLeftOf="@+id/game_table_player1_card_imageview"
+            android:contentDescription="@string/game_card_back_text"
+            android:src="@drawable/card_back"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <Button
             android:id="@+id/game_table_bid_button"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/game_table_player1_card_textview"
-            android:layout_toLeftOf="@+id/game_table_player2_card_textview"
+            android:layout_above="@+id/game_table_player_hand_scrollview"
+            android:layout_alignRight="@+id/game_table_player4_card_imageview"
             android:text="Bid"
             android:visibility="visible" />
 
@@ -34,251 +55,233 @@
             android:id="@+id/game_table_bid_edittext"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/game_table_bid_button"
+            android:layout_alignBaseline="@+id/game_table_bid_button"
+            android:layout_alignBottom="@+id/game_table_bid_button"
             android:layout_toLeftOf="@+id/game_table_bid_button"
             android:ems="10"
             android:hint="bid"
             android:inputType="numberSigned"
-            android:visibility="visible" >
+            android:visibility="visible" />
 
-            <requestFocus />
-        </EditText>
-
-        <TextView
-            android:id="@+id/game_table_player3_card_textview"
+        <ImageView
+            android:id="@+id/game_table_player3_card_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/game_table_player4_card_imageview"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/game_table_bid_button"
-            android:text="Small Text"
+            android:layout_toRightOf="@+id/game_table_player4_card_imageview"
+            android:contentDescription="@string/game_card_back_text"
+            android:src="@drawable/card_back"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TextView
-            android:id="@+id/game_table_player4_card_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/game_table_bid_edittext"
-            android:layout_toLeftOf="@+id/game_table_bid_edittext"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/game_table_player2_card_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/game_table_bid_button"
-            android:layout_toRightOf="@+id/game_table_player1_card_textview"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/game_table_player_hand_textview"
+        <HorizontalScrollView
+            android:id="@+id/game_table_player_hand_scrollview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/game_table_player3_card_textview"
-            android:text="TextView" />
+            android:layout_below="@+id/game_table_player3_card_imageview" >
 
+            <LinearLayout
+                android:id="@+id/game_table_player_hand_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+            </LinearLayout>
+        </HorizontalScrollView>
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal" >
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/game_bid_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="You Bid: 46"
-            android:layout_weight="3" />
+            android:layout_weight="3"
+            android:text="@string/game_no_bid_text" />
 
         <Button
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Show last trick"
-            android:layout_weight="1" />
-
+            android:layout_weight="1"
+            android:text="Show last trick" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="horizontal" >
 
         <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_weight="1"
-        android:orientation="vertical">
-        
-             <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            android:layout_weight="1" />
-             
-              <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/game_points_label"
-            android:layout_weight="1" />
-              
-               <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/game_score_label"
-            android:layout_weight="1" />
-            
-         </LinearLayout>
-         
-         <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_weight="1"
-        android:orientation="vertical">
-               
-              <TextView
-            android:id="@+id/game_player1_name_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Player 1"
-            android:layout_weight="1" />
-              
-               <TextView
-            android:id="@+id/game_player1_points_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30"
-            android:layout_weight="1" />
-               
-                <TextView
-            android:id="@+id/game_player1_score_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50"
-            android:layout_weight="1" />
-         </LinearLayout>
-         
-          <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_weight="1"
-        android:orientation="vertical">
-                
-              <TextView
-            android:id="@+id/game_player2_name_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Player 2"
-            android:layout_weight="1" />
-              
-               <TextView
-            android:id="@+id/game_player2_points_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30"
-            android:layout_weight="1" />
-               
-                <TextView
-            android:id="@+id/game_player2_score_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50"
-            android:layout_weight="1" />
-         </LinearLayout>
-         
-           <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_weight="1"
-        android:orientation="vertical">
-                
-               <TextView
-            android:id="@+id/game_player3_name_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Player 3"
-            android:layout_weight="1" />
-              
-               <TextView
-            android:id="@+id/game_player3_points_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30"
-            android:layout_weight="1" />
-               
-                <TextView
-            android:id="@+id/game_player3_score_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50"
-            android:layout_weight="1" />
-         </LinearLayout>
-         
-            <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_weight="1"
-        android:orientation="vertical">
-                <TextView
-            android:id="@+id/game_player4_name_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Player 4"
-            android:layout_weight="1" />
-              
-               <TextView
-            android:id="@+id/game_player4_points_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30"
-            android:layout_weight="1" />
-               
-                <TextView
-            android:id="@+id/game_player4_score_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50"
-            android:layout_weight="1" />
-         </LinearLayout>
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-       
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/game_points_label" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/game_score_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/game_player1_name_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Player 1" />
+
+            <TextView
+                android:id="@+id/game_player1_points_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/game_player1_score_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/game_player2_name_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Player 2" />
+
+            <TextView
+                android:id="@+id/game_player2_points_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/game_player2_score_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/game_player3_name_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Player 3" />
+
+            <TextView
+                android:id="@+id/game_player3_points_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/game_player3_score_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/game_player4_name_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Player 4" />
+
+            <TextView
+                android:id="@+id/game_player4_points_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/game_player4_score_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0" />
+        </LinearLayout>
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" >
-            
-         <TextView
-            android:id="@+id/game_chat_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="10"
-            android:scrollbarAlwaysDrawVerticalTrack="true"       
-            android:text="Messages go here!"
-         />
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="vertical" >
 
+        <TextView
+            android:id="@+id/game_chat_textview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="" />
     </ScrollView>
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal" >
 
         <EditText
             android:id="@+id/game_chat_edittext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/game_chat_hint"
-            android:ems="10" />
+            android:ems="10"
+            android:hint="@string/game_chat_hint" />
 
         <Button
             android:id="@+id/game_chat_button"
@@ -286,7 +289,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/game_chat_button_label" />
-
     </LinearLayout>
 
 </LinearLayout>

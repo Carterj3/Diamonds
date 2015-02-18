@@ -122,16 +122,12 @@ public class Card implements Comparable<Card> {
 		}
 	}
 
-	public Drawable getResourceId() {
+	public String getResourceName() {
 		String name = "card_" + getValueForResource() + "_of_"
-				+ getSuitForResource() + ".png";
-		int resourceId = Resources.getSystem().getIdentifier(name, "drawable",
-				"android");
-		if (resourceId == 0) {
-			return null;
-		} else {
-			return Resources.getSystem().getDrawable(resourceId);
-		}
+				+ getSuitForResource();
+		
+		return name;
+		
 
 	}
 }

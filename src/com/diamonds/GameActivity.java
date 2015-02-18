@@ -1,6 +1,7 @@
 package com.diamonds;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.TreeMap;
 
 import org.rosehulman.edu.carterj3.BidAction;
@@ -16,12 +17,17 @@ import org.rosehulman.edu.carterj3.StartGameAction;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -29,6 +35,7 @@ import android.widget.Toast;
 public class GameActivity extends Activity implements OnCommunication,
 		OnClickListener {
 
+	private static final int SleepBetweenCards = 800;
 	private String mIp;
 	private String mUsername;
 	private boolean mIsHost;
@@ -159,7 +166,44 @@ public class GameActivity extends Activity implements OnCommunication,
 		} catch (Exception e) {
 			Log.e(MainActivity.tag, "convertStringToHand " + str, e);
 		}
-		return hand;
+
+		return sortHand(hand);
+	}
+
+	private static ArrayList<Card> sortHand(ArrayList<Card> hand) {
+		ArrayList<Card> hearts = new ArrayList<Card>();
+		ArrayList<Card> diamonds = new ArrayList<Card>();
+		ArrayList<Card> clubs = new ArrayList<Card>();
+		ArrayList<Card> spades = new ArrayList<Card>();
+
+		for (Card c : hand) {
+			switch (c.suit) {
+			case Heart:
+				hearts.add(c);
+				break;
+			case Diamond:
+				diamonds.add(c);
+				break;
+			case Club:
+				clubs.add(c);
+				break;
+			case Spade:
+				spades.add(c);
+				break;
+			}
+		}
+		
+		Collections.sort(hearts);
+		Collections.sort(diamonds);
+		Collections.sort(clubs);
+		Collections.sort(spades);
+		
+		clubs.addAll(hearts);
+		clubs.addAll(spades);
+		clubs.addAll(diamonds);
+		
+		return clubs;
+
 	}
 
 	private void sendHand(ArrayList<Card> hand, Integer player) {
@@ -201,6 +245,9 @@ public class GameActivity extends Activity implements OnCommunication,
 					((TextView) findViewById(R.id.game_player4_score_textview))
 							.setText(splits[3]);
 
+					TextView bidView = (TextView) findViewById(R.id.game_bid_textview);
+					bidView.setText(R.string.game_no_bid_text);
+
 				}
 			});
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_TrickSummary)) {
@@ -209,14 +256,18 @@ public class GameActivity extends Activity implements OnCommunication,
 			this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					((TextView) findViewById(R.id.game_table_player1_card_textview))
-							.setText("");
-					((TextView) findViewById(R.id.game_table_player2_card_textview))
-							.setText("");
-					((TextView) findViewById(R.id.game_table_player3_card_textview))
-							.setText("");
-					((TextView) findViewById(R.id.game_table_player4_card_textview))
-							.setText("");
+					((ImageView) findViewById(R.id.game_table_player1_card_imageview))
+							.setImageDrawable(getResources().getDrawable(
+									R.drawable.card_back));
+					((ImageView) findViewById(R.id.game_table_player2_card_imageview))
+							.setImageDrawable(getResources().getDrawable(
+									R.drawable.card_back));
+					((ImageView) findViewById(R.id.game_table_player3_card_imageview))
+							.setImageDrawable(getResources().getDrawable(
+									R.drawable.card_back));
+					((ImageView) findViewById(R.id.game_table_player4_card_imageview))
+							.setImageDrawable(getResources().getDrawable(
+									R.drawable.card_back));
 
 					((TextView) findViewById(R.id.game_player1_points_textview))
 							.setText(splits[0]);
@@ -236,29 +287,41 @@ public class GameActivity extends Activity implements OnCommunication,
 			final String card = msg.split(":")[2];
 
 			this.runOnUiThread(new Runnable() {
-
 				@Override
 				public void run() {
+
+					Card c = new Card(card);
+					Drawable d = getResources().getDrawable(
+							getResources().getIdentifier(c.getResourceName(),
+									"drawable", getPackageName()));
+
 					switch (player) {
 					case 0:
-						((TextView) findViewById(R.id.game_table_player1_card_textview))
-								.setText(card);
+						((ImageView) findViewById(R.id.game_table_player1_card_imageview))
+								.setImageDrawable(d);
 						break;
 					case 1:
-						((TextView) findViewById(R.id.game_table_player2_card_textview))
-								.setText(card);
+						((ImageView) findViewById(R.id.game_table_player2_card_imageview))
+								.setImageDrawable(d);
+
 						break;
 					case 2:
-						((TextView) findViewById(R.id.game_table_player3_card_textview))
-								.setText(card);
+						((ImageView) findViewById(R.id.game_table_player3_card_imageview))
+								.setImageDrawable(d);
+
 						break;
 					case 3:
-						((TextView) findViewById(R.id.game_table_player4_card_textview))
-								.setText(card);
+						((ImageView) findViewById(R.id.game_table_player4_card_imageview))
+								.setImageDrawable(d);
+
 						break;
 					}
 				}
 			});
+			try {
+				Thread.sleep(SleepBetweenCards);
+			} catch (InterruptedException e) {
+			}
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayCard)) {
 			Player p = socketMap.get(id);
 			String card_str = msg.split(":")[1];
@@ -323,6 +386,10 @@ public class GameActivity extends Activity implements OnCommunication,
 				return;
 			}
 
+			if (msg.split(":").length < 2) {
+				return;
+			}
+
 			Player p = socketMap.get(id);
 			Integer bid = Integer.parseInt(msg.split(":")[1]);
 
@@ -373,8 +440,33 @@ public class GameActivity extends Activity implements OnCommunication,
 					((EditText) findViewById(R.id.game_table_bid_edittext))
 							.setVisibility(View.VISIBLE);
 
-					((TextView) findViewById(R.id.game_table_player_hand_textview))
-							.setText(hand_str);
+					LinearLayout ll = (LinearLayout) findViewById(R.id.game_table_player_hand_layout);
+					ll.removeAllViews();
+
+					for (final Card c : mHand) {
+						ImageView iv = new ImageView(GameActivity.this);
+						iv.setImageDrawable(getResources().getDrawable(
+								getResources().getIdentifier(
+										c.getResourceName(), "drawable",
+										getPackageName())));
+						iv.setLayoutParams(new LayoutParams(
+								LayoutParams.WRAP_CONTENT,
+								LayoutParams.WRAP_CONTENT));
+						iv.setPadding(5, 5, 5, 5);
+
+						iv.setOnClickListener(new View.OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								if (!isBid) {
+									sendToHost(CONSTANTS.SOCKET_PlayCard + c);
+								}
+
+							}
+						});
+
+						ll.addView(iv);
+					}
 				}
 			});
 
@@ -480,6 +572,18 @@ public class GameActivity extends Activity implements OnCommunication,
 		socketMap.remove(player.position);
 	}
 
+	private void setBid(final String bid) {
+		sendToHost(CONSTANTS.SOCKET_SendBid + bid);
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				TextView bidView = (TextView) findViewById(R.id.game_bid_textview);
+				bidView.setText(getString(R.string.game_bid_text, bid));
+			}
+		});
+	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -494,19 +598,8 @@ public class GameActivity extends Activity implements OnCommunication,
 			String bid = ((EditText) findViewById(R.id.game_table_bid_edittext))
 					.getText().toString();
 			if (isBid) {
+				setBid(bid);
 
-				sendToHost(CONSTANTS.SOCKET_SendBid + bid);
-			} else {
-				try {
-					sendToHost(CONSTANTS.SOCKET_PlayCard
-							+ mHand.get(Integer.parseInt(bid)));
-				} catch (NumberFormatException e1) {
-
-				}
-
-				catch (IndexOutOfBoundsException e2) {
-
-				}
 			}
 
 			break;
@@ -514,4 +607,5 @@ public class GameActivity extends Activity implements OnCommunication,
 			break;
 		}
 	}
+
 }

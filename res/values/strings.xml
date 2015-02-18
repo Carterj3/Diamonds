@@ -17,5 +17,8 @@
     <string name="game_score_label">Score</string>
     <string name="game_chat_hint">Type to chat!</string>
     <string name="game_chat_button_label">Chat!</string>
+    <string name="game_bid_text">You bid %s.</string>
+    <string name="game_no_bid_text">No bid.</string>
+    <string name="game_card_back_text">Empty</string>
 
 </resources>
