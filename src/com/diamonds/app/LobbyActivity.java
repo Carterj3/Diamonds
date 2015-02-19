@@ -46,6 +46,11 @@ public class LobbyActivity extends Activity implements OnCommunication,
 	public static final String KEY_IP = "IP";
 	public static final String KEY_USERNAME = "USERNAME";
 
+	public static final String KEY_Player1 = "PLAYER1";
+	public static final String KEY_Player2 = "PLAYER2";
+	public static final String KEY_Player3 = "PLAYER3";
+	public static final String KEY_Player4 = "PLAYER4";
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -268,12 +273,15 @@ public class LobbyActivity extends Activity implements OnCommunication,
 				return;
 			}
 
-			String name = getPlayer(position);
-			final String message = name + " " + msg.split(":")[1];
+			if (mIsHost) {
+				String name = getPlayer(position);
+				String message = name + " " + msg.split(":")[1] + "\n";
 
-			sendToPlayers(CONSTANTS.SOCKET_SendChat + message);
-
-			addChatMessage("\n" + message);
+				sendToPlayers(CONSTANTS.SOCKET_SendChat + message);
+				addChatMessage(message);
+			} else {
+				addChatMessage(msg.split(":")[1]);
+			}
 
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_StartGame)) {
 
@@ -287,11 +295,37 @@ public class LobbyActivity extends Activity implements OnCommunication,
 				(new DeleteGameTask()).execute(currentGame);
 			}
 
-			Intent game = new Intent(LobbyActivity.this, GameActivity.class);
+			final Intent game = new Intent(LobbyActivity.this,
+					GameActivity.class);
 			game.putExtra(KEY_IP, mIp);
 			game.putExtra(KEY_ISHOST, mIsHost);
 			game.putExtra(KEY_USERNAME, mUsername);
-			startActivity(game);
+
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					String p1 = ((TextView) findViewById(R.id.lobby_player1_textview))
+							.getText().toString();
+					String p2 = ((TextView) findViewById(R.id.lobby_player2_textview))
+							.getText().toString();
+					String p3 = ((TextView) findViewById(R.id.lobby_player3_textview))
+							.getText().toString();
+					String p4 = ((TextView) findViewById(R.id.lobby_player4_textview))
+							.getText().toString();
+
+					game.putExtra(KEY_Player1, p1);
+					game.putExtra(KEY_Player2, p2);
+					game.putExtra(KEY_Player3, p3);
+					game.putExtra(KEY_Player4, p4);
+
+					Log.d(CONSTANTS.TAG, "Four names are " + p1 + " " + p2
+							+ " " + p3 + " " + p4);
+
+					startActivity(game);
+				}
+			});
+
 		}
 
 	}
@@ -488,7 +522,7 @@ public class LobbyActivity extends Activity implements OnCommunication,
 		@Override
 		protected Void doInBackground(Void... params) {
 			for (int i = 5; i > 0; i--) {
-				if (availableSlots.size() == 0) {
+				if (availableSlots.size() != 0) {
 					return null;
 				}
 				sendToHost(CONSTANTS.SOCKET_SendChat

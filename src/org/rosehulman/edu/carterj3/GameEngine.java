@@ -66,7 +66,7 @@ public class GameEngine {
 
 		// Score all the players
 		for (Player p : order) {
-			int diff = p.bid - p.points;
+			int diff = Math.abs(p.bid - p.points);
 			p.score += CONSTANTS.POINTS_PER_ROUND - diff;
 
 			p.bid = null;

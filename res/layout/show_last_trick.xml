@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:layout_margin="5dp">
+
+    <ImageView
+        android:id="@+id/show_trick_spacer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/card_back" />
+
+    <ImageView
+        android:id="@+id/show_trick_player1_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/show_trick_spacer"
+        android:layout_alignLeft="@id/show_trick_spacer"
+        android:src="@drawable/card_back" />
+
+    <ImageView
+        android:id="@+id/show_trick_player2_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/show_trick_spacer"
+        android:layout_toRightOf="@id/show_trick_spacer"
+        android:src="@drawable/card_back" />
+
+    <ImageView
+        android:id="@+id/show_trick_player3_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/show_trick_spacer"
+        android:layout_below="@id/show_trick_spacer"
+        android:src="@drawable/card_back" />
+
+    <ImageView
+        android:id="@+id/show_trick_player4_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/show_trick_spacer"
+        android:layout_toLeftOf="@id/show_trick_spacer"
+        android:src="@drawable/card_back" />
+
+</RelativeLayout>

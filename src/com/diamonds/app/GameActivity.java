@@ -18,13 +18,22 @@ import org.rosehulman.edu.carterj3.StartGameAction;
 import com.diamonds.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,7 +46,7 @@ import android.widget.Toast;
 public class GameActivity extends Activity implements OnCommunication,
 		OnClickListener {
 
-	private static final int SleepBetweenCards = 800;
+	private static final int SleepAfterRound = 1200;
 	private String mIp;
 	private String mUsername;
 	private boolean mIsHost;
@@ -52,6 +61,8 @@ public class GameActivity extends Activity implements OnCommunication,
 	protected EditText chatInput;
 
 	GameEngine engine;
+
+	ArrayList<Drawable> lastTrick = new ArrayList<Drawable>();
 
 	ArrayList<Card> mHand;
 	Card leadCard;
@@ -74,6 +85,49 @@ public class GameActivity extends Activity implements OnCommunication,
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_help:
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle("Tutorial");
+			alert.setMessage(R.string.tutorial);
+			alert.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+
+						}
+					});
+			alert.show();
+			return true;
+		case R.id.menu_about:
+			AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
+			alert1.setTitle("About");
+			alert1.setMessage(R.string.about);
+			alert1.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+
+						}
+					});
+			alert1.show();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
@@ -87,10 +141,13 @@ public class GameActivity extends Activity implements OnCommunication,
 		chatOutput = ((TextView) findViewById(R.id.game_chat_textview));
 		chatInput = ((EditText) findViewById(R.id.game_chat_edittext));
 
-		String p1 = data.getStringExtra(WelcomeActivity.KEY_Player1);
-		String p2 = data.getStringExtra(WelcomeActivity.KEY_Player2);
-		String p3 = data.getStringExtra(WelcomeActivity.KEY_Player3);
-		String p4 = data.getStringExtra(WelcomeActivity.KEY_Player4);
+		String p1 = data.getStringExtra(LobbyActivity.KEY_Player1);
+		String p2 = data.getStringExtra(LobbyActivity.KEY_Player2);
+		String p3 = data.getStringExtra(LobbyActivity.KEY_Player3);
+		String p4 = data.getStringExtra(LobbyActivity.KEY_Player4);
+
+		Log.d(CONSTANTS.TAG, "Four names are " + p1 + " " + p2 + " " + p3 + " "
+				+ p4);
 
 		((TextView) findViewById(R.id.game_table_player1_name_textview))
 				.setText(p1);
@@ -108,6 +165,9 @@ public class GameActivity extends Activity implements OnCommunication,
 
 		((Button) findViewById(R.id.game_chat_button)).setOnClickListener(this);
 		((Button) findViewById(R.id.game_table_bid_button))
+				.setOnClickListener(this);
+
+		((Button) findViewById(R.id.game_show_last_trick_button))
 				.setOnClickListener(this);
 
 		// set sockets
@@ -236,7 +296,19 @@ public class GameActivity extends Activity implements OnCommunication,
 	public void onRecv(final String msg, final int id) {
 		Log.d(CONSTANTS.TAG, "Game [" + id + "] onRecv : " + msg);
 
-		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
+		if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_GameOver)) {
+
+			this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					Toast.makeText(GameActivity.this,
+							"Game over " + msg.split(":")[1] + " won!",
+							Toast.LENGTH_LONG).show();
+				}
+
+			});
+		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_YourTurn)) {
 			isBid = false;
 
 			this.runOnUiThread(new Runnable() {
@@ -253,10 +325,15 @@ public class GameActivity extends Activity implements OnCommunication,
 		else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_ScoreSummary)) {
 			final String[] splits = msg.split(":")[1].split(" ");
 			isBid = true;
+			
+			lastTrick = new ArrayList<Drawable>();
 
 			this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+
+					lastTrick = new ArrayList<Drawable>();
+
 					((TextView) findViewById(R.id.game_player1_score_textview))
 							.setText(splits[0]);
 					((TextView) findViewById(R.id.game_player2_score_textview))
@@ -279,9 +356,30 @@ public class GameActivity extends Activity implements OnCommunication,
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_TrickSummary)) {
 			final String[] splits = msg.split(":")[1].split(" ");
 
+			try {
+				Thread.sleep(SleepAfterRound);
+			} catch (InterruptedException e) {
+			}
+
 			this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+
+					lastTrick = new ArrayList<Drawable>();
+
+					lastTrick
+							.add(((ImageView) findViewById(R.id.game_table_player1_card_imageview))
+									.getDrawable());
+					lastTrick
+							.add(((ImageView) findViewById(R.id.game_table_player2_card_imageview))
+									.getDrawable());
+					lastTrick
+							.add(((ImageView) findViewById(R.id.game_table_player3_card_imageview))
+									.getDrawable());
+					lastTrick
+							.add(((ImageView) findViewById(R.id.game_table_player4_card_imageview))
+									.getDrawable());
+
 					((ImageView) findViewById(R.id.game_table_player1_card_imageview))
 							.setImageDrawable(getResources().getDrawable(
 									R.drawable.card_back));
@@ -349,10 +447,7 @@ public class GameActivity extends Activity implements OnCommunication,
 					}
 				}
 			});
-			try {
-				Thread.sleep(SleepBetweenCards);
-			} catch (InterruptedException e) {
-			}
+
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_PlayCard)) {
 			Player p = socketMap.get(id);
 			String card_str = msg.split(":")[1];
@@ -386,7 +481,6 @@ public class GameActivity extends Activity implements OnCommunication,
 			switch (engine.getState()) {
 			case ROUND_END:
 				Log.d(CONSTANTS.TAG, "Round over");
-				onRecv(CONSTANTS.SOCKET_SendChat + "Round over", 0);
 
 				StartGameAction newRound = new StartGameAction();
 				engine.HandleAction(newRound);
@@ -397,7 +491,13 @@ public class GameActivity extends Activity implements OnCommunication,
 				switch (engine.getState()) {
 				case GAME_OVER:
 					Log.d(CONSTANTS.TAG, "Game over");
-					onRecv(CONSTANTS.SOCKET_SendChat + "Game over", 0);
+					Player winner = engine.order.get(0);
+					for (Player player : engine.order) {
+						if (winner.score < player.score) {
+							winner = player;
+						}
+					}
+					sendToPlayers(CONSTANTS.SOCKET_GameOver + winner.name);
 					break;
 				default:
 					engine.HandleAction(newRound);
@@ -429,7 +529,6 @@ public class GameActivity extends Activity implements OnCommunication,
 
 			if (engine.getState() == GameState.ROUND_START) {
 				Log.d(CONSTANTS.TAG, "Everybody bid");
-				onRecv(CONSTANTS.SOCKET_SendChat + "Everybody bid", 0);
 
 				Player lead = socketMap.get(engine.order.get(0).position);
 				sendToSocket(lead, CONSTANTS.SOCKET_YourTurn);
@@ -466,11 +565,6 @@ public class GameActivity extends Activity implements OnCommunication,
 
 				@Override
 				public void run() {
-					((Button) findViewById(R.id.game_table_bid_button))
-							.setVisibility(View.VISIBLE);
-					((EditText) findViewById(R.id.game_table_bid_edittext))
-							.setVisibility(View.VISIBLE);
-
 					LinearLayout ll = (LinearLayout) findViewById(R.id.game_table_player_hand_layout);
 					ll.removeAllViews();
 
@@ -504,17 +598,20 @@ public class GameActivity extends Activity implements OnCommunication,
 		} else if (CONSTANTS.strncmp(msg, CONSTANTS.SOCKET_SendChat)) {
 			// If somebody sends us a chat msg we should use display & forward
 			// it
-			
 
 			if (msg.split(":")[1].equals("")) {
 				return;
 			}
 
-			String name = socketMap.get(id).name;
-			String message = name + " " + msg.split(":")[1];
+			if (mIsHost) {
+				String name = socketMap.get(id).name;
+				String message = name + " " + msg.split(":")[1];
 
-			sendToPlayers(CONSTANTS.SOCKET_SendChat + message);
-			addChatMessage("\n" + message);
+				sendToPlayers(CONSTANTS.SOCKET_SendChat + "\n" + message);
+				addChatMessage(message);
+			} else {
+				addChatMessage(msg.split(":")[1]);
+			}
 
 		}
 
@@ -638,13 +735,35 @@ public class GameActivity extends Activity implements OnCommunication,
 					.getText().toString();
 			if (isBid) {
 				setBid(bid);
-
 			}
+			break;
+		case R.id.game_show_last_trick_button:
+
+			if (lastTrick.size() == 0) {
+				return;
+			}
+
+			Dialog df = new Dialog(this);
+			df.setContentView(R.layout.show_last_trick);
+			df.setTitle("Last Trick");
+			((ImageView) df.findViewById(R.id.show_trick_player1_card))
+					.setImageDrawable(lastTrick.get(0));
+
+			((ImageView) df.findViewById(R.id.show_trick_player2_card))
+					.setImageDrawable(lastTrick.get(1));
+
+			((ImageView) df.findViewById(R.id.show_trick_player3_card))
+					.setImageDrawable(lastTrick.get(2));
+
+			((ImageView) df.findViewById(R.id.show_trick_player4_card))
+					.setImageDrawable(lastTrick.get(3));
+
+			df.setCanceledOnTouchOutside(true);
+			df.show();
 
 			break;
 		default:
 			break;
 		}
 	}
-
 }

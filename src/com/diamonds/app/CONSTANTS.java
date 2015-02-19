@@ -21,6 +21,8 @@ public class CONSTANTS {
 	
 	
 	public static final int SOCKET_Port = 8080;
+
+	public static final String SOCKET_GameOver = "GameOver:";
 	
 	
 	public static boolean strncmp(String actual, String expected) {

@@ -98,6 +98,7 @@ public final class R {
         public static final int game_player4_name_textview=0x7f080018;
         public static final int game_player4_points_textview=0x7f080019;
         public static final int game_player4_score_textview=0x7f08001a;
+        public static final int game_show_last_trick_button=0x7f08000e;
         public static final int game_table_bid_button=0x7f080004;
         public static final int game_table_bid_edittext=0x7f080006;
         public static final int game_table_layout=0x7f080000;
@@ -131,13 +132,17 @@ public final class R {
         public static final int lobby_player4_textview=0x7f080029;
         public static final int lobby_public_game_listview=0x7f08003a;
         public static final int lobby_refresh_public_games=0x7f080039;
-        public static final int lobby_send_game_button=0x7f08000e;
-        public static final int menu_about=0x7f08003c;
-        public static final int menu_help=0x7f08003b;
+        public static final int menu_about=0x7f080041;
+        public static final int menu_help=0x7f080040;
         public static final int recieved_messages_textview=0x7f080031;
         public static final int scrollView1=0x7f08002d;
         public static final int send_message_button=0x7f080033;
         public static final int send_message_edittext=0x7f080032;
+        public static final int show_trick_player1_card=0x7f08003c;
+        public static final int show_trick_player2_card=0x7f08003d;
+        public static final int show_trick_player3_card=0x7f08003e;
+        public static final int show_trick_player4_card=0x7f08003f;
+        public static final int show_trick_spacer=0x7f08003b;
         public static final int username_button=0x7f080030;
         public static final int username_edittext=0x7f08002f;
         public static final int welcome_join_games_layout=0x7f080036;
@@ -148,6 +153,7 @@ public final class R {
         public static final int activity_login=0x7f030002;
         public static final int activity_main=0x7f030003;
         public static final int activity_welcome=0x7f030004;
+        public static final int show_last_trick=0x7f030005;
     }
     public static final class menu {
         public static final int main=0x7f070000;
